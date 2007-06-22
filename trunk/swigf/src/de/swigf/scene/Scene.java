@@ -2,10 +2,28 @@ package de.swigf.scene;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 
 import de.swigf.elements.AbstractGraphElement;
 
@@ -20,6 +38,13 @@ public class Scene extends JComponent {
 		controller = new SceneController(this);
 		addMouseListener(controller);
 		addMouseMotionListener(controller);
+		getInputMap().put(KeyStroke.getKeyStroke("ctrl C"), "copy");
+		getActionMap().put("copy", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("copy");
+				copyToClipboard();
+			}
+		});
 	}
 
 	/**
@@ -36,15 +61,67 @@ public class Scene extends JComponent {
 		repaint();
 	}
 
+	private static class TransferableImage implements ClipboardOwner, Transferable {
+		private Image image;
+
+		public TransferableImage(Image image) {
+			this.image = image;
+		}
+
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
+				IOException {
+			return image;
+		}
+
+		public DataFlavor[] getTransferDataFlavors() {
+			return new DataFlavor[] { DataFlavor.imageFlavor };
+		}
+
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+			return false;
+		}
+
+		public void lostOwnership(Clipboard clipboard, Transferable contents) {
+		}
+	}
+
+	/** 
+	 * Copys the screen into the clipboard.
+	 */
+	void copyToClipboard() {
+		int offsetx = Integer.MAX_VALUE;
+		int offsety = Integer.MAX_VALUE;
+		int width = 0;
+		int height = 0;
+		for (AbstractGraphElement element : elements) {
+			offsetx = Math.min(offsetx, element.getBounds().x);
+			offsety = Math.min(offsety, element.getBounds().y);
+			width = Math.max(width, element.getBounds().x + element.getBounds().width);
+			height = Math.max(height, element.getBounds().y + element.getBounds().height);
+		}
+		if (width > 0 && height > 0) {
+			width = width - offsetx + 10;
+			height = height - offsety + 10;
+			offsetx -= 5;
+			offsety -= 5;
+			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			Graphics2D gr = image.createGraphics();
+			gr.translate(-offsetx, -offsety);
+			paint(gr);
+			TransferableImage contents = new TransferableImage(image);
+			getToolkit().getSystemClipboard().setContents(contents, contents);
+		}
+	}
+
 	@Override
 	public void paint(Graphics g) {
 		g.setColor(WHITE_GRAY);
 		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setColor(Color.LIGHT_GRAY);
-		for (int x= 0; x<getWidth(); x+=getGridSpace()) {
+		for (int x = 0; x < getWidth(); x += getGridSpace()) {
 			g.drawLine(x, 0, x, getHeight());
 		}
-		for (int y=0; y<getHeight(); y+=getGridSpace()) {
+		for (int y = 0; y < getHeight(); y += getGridSpace()) {
 			g.drawLine(0, y, getWidth(), y);
 		}
 		for (AbstractGraphElement el : elements) {
@@ -78,7 +155,7 @@ public class Scene extends JComponent {
 	public void setGridSpace(int gridSpace) {
 		this.gridSpace = gridSpace;
 	}
-	
+
 	public Color getSelectionColor() {
 		return Color.MAGENTA;
 	}
