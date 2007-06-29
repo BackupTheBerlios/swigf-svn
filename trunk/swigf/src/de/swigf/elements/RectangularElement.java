@@ -45,6 +45,19 @@ public class RectangularElement extends AbstractGraphElement {
 		scene.getGraphics().drawImage(bufferedImage, rectx, recty, null);
 		drawSelection();
 	}
+	
+	@Override
+	public void deselect() {
+		BufferedImage bufferedImage = new BufferedImage(getBounds().width,
+				getBounds().height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D gr = bufferedImage.createGraphics();
+		// as the buffer only contains a small clipping area of the scene, we have to translate with
+		// the offset and then repaint the scene in the buffer
+		gr.translate(-getBounds().x, -getBounds().y);
+		scene.paint(gr);
+		// copy the buffer back to the foreground
+		scene.getGraphics().drawImage(bufferedImage, getBounds().x, getBounds().y, null);
+	}
 
 	@Override
 	public boolean contains(int x, int y) {

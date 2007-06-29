@@ -55,9 +55,11 @@ public abstract class AbstractGraphElement {
 		g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
 	
-	public void deselect() {
-		paint(scene.getGraphics());
-	}
+	/**
+	 * Repaint the selected area and do any cleanup necessary at deselection.
+	 *
+	 */
+	public abstract void deselect();
 
 	/**
 	 * Drags the element from its current position to the given coordinates. The responsibility to

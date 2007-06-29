@@ -39,7 +39,6 @@ public class ConnectorElement extends AbstractGraphElement {
 				selected = true;
 			}
 		}
-		// TODO Auto-generated method stub
 		return selected;
 	}
 
@@ -103,6 +102,12 @@ public class ConnectorElement extends AbstractGraphElement {
 
 	public Point getPoint(int i) {
 		return points[i];
+	}
+
+	@Override
+	public void deselect() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
