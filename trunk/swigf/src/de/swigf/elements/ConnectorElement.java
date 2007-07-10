@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import de.swigf.scene.Scene;
 
 public class ConnectorElement extends AbstractGraphElement {
-	private Point[] points;
+	private List<Point> points;
 	private int selectedIndex;
 	private static final int selectionWidth = 10;
 	private Color foreground = Color.BLACK;
@@ -16,28 +19,30 @@ public class ConnectorElement extends AbstractGraphElement {
 
 	public ConnectorElement(Scene scene, Point pt1, Point pt2) {
 		super(scene);
-		points = new Point[2];
-		points[0] = pt1;
-		points[1] = pt2;
+		points = new ArrayList<Point>();
+		points.add(pt1);
+		points.add(pt2);
 		setBounds(new Rectangle(pt1.x, pt1.y, 5, 5));
 	}
 
 	@Override
 	public boolean contains(int x, int y) {
 		boolean selected = false;
-		for (int i = 1; i < points.length; i++) {
+		Iterator<Point> it = points.iterator();
+		Point pt1 = it.next();
+		while (it.hasNext()) {
+			Point pt2 = it.next();
 			// check hit for horizontal line
-			if (points[i - 1].y == points[i].y && x >= Math.min(points[i - 1].x, points[i].x)
-					&& x <= Math.max(points[i - 1].x, points[i].x) && y >= points[i].y - accuracy
-					&& y <= points[i].y + accuracy) {
+			if (pt1.y == pt2.y && x >= Math.min(pt1.x, pt2.x) && x <= Math.max(pt1.x, pt2.x)
+					&& y >= pt2.y - accuracy && y <= pt2.y + accuracy) {
 				selected = true;
 			}
 			// check hit for vertical line
-			if (points[i - 1].x == points[i].x && y >= Math.min(points[i - 1].y, points[i].y)
-					&& y <= Math.max(points[i - 1].y, points[i].y) && x >= points[i].x - accuracy
-					&& x <= points[i].x + accuracy) {
+			if (pt1.x == pt2.x && y >= Math.min(pt1.y, pt2.y) && y <= Math.max(pt1.y, pt2.y)
+					&& x >= pt2.x - accuracy && x <= pt2.x + accuracy) {
 				selected = true;
 			}
+			pt1 = pt2;
 		}
 		return selected;
 	}
@@ -55,8 +60,8 @@ public class ConnectorElement extends AbstractGraphElement {
 	@Override
 	public void select(int x, int y) {
 		selectedIndex = -1;
-		for (int i = 0; i<points.length; i++) {
-			Point pt = points[i];
+		for (int i = 0; i < points.size(); i++) {
+			Point pt = points.get(i);
 			if (x >= pt.x - selectionWidth / 2 && x <= pt.x + selectionWidth / 2
 					&& y >= pt.y - selectionWidth / 2 && y <= pt.y + selectionWidth / 2) {
 				selectedIndex = i;
@@ -70,10 +75,61 @@ public class ConnectorElement extends AbstractGraphElement {
 		Graphics gr = scene.getGraphics();
 		gr.setXORMode(Color.YELLOW);
 		drawLines(gr);
-		if (selectedIndex>=0) {
-			points[selectedIndex] = new Point(x,y);
+
+		// some point neighbouring the edge
+		if (selectedIndex == 1 && points.size() > 2) {
+			Point pt = points.get(0);
+			points.add(1, new Point((pt.x - x) / 2 + pt.x, (pt.y - points.get(0).y) / 2
+					+ points.get(0).y));
+			points.add(1, new Point((pt.x - x) / 2 + pt.x, (pt.y - points.get(0).y) / 2
+					+ points.get(0).y));
+			selectedIndex = 2;
+		}
+		if (selectedIndex == getLastIndex() - 1 && points.size() > 2) {
+			Point pt = points.get(getLastIndex());
+			points.add(getLastIndex() - 1, new Point((pt.x - x) / 2 + pt.x,
+					(pt.y - points.get(0).y) / 2 + points.get(0).y));
+			points.add(getLastIndex() - 1, new Point((pt.x - x) / 2 + pt.x,
+					(pt.y - points.get(0).y) / 2 + points.get(0).y));
+		}
+		if (selectedIndex > 1 && selectedIndex < getLastIndex() - 1) {
+			points.get(selectedIndex - 1).setLocation(x, points.get(selectedIndex - 2).y);
+			points.get(selectedIndex + 1).setLocation(y, points.get(selectedIndex + 2).y);
+		}
+
+		// selecting and moving the point
+		if (selectedIndex >= 0) {
+			points.get(selectedIndex).setLocation(x, y);
+		}
+		Point selectedPoint = points.get(selectedIndex);
+
+		// moving the start point
+		if (selectedIndex == 0 && selectedPoint.x != points.get(1).x
+				&& selectedPoint.y != points.get(1).y) {
+			if (points.size() == 2) {
+				points.add(1, new Point(selectedPoint.x, points.get(1).y));
+			}
+			else {
+				points.get(1).setLocation(selectedPoint.x, points.get(2).y);
+			}
+		}
+		// moving the end point
+		int lastIndex = points.size() - 1;
+		if (selectedIndex == lastIndex && selectedPoint.x != points.get(lastIndex - 1).x
+				&& selectedPoint.y != points.get(lastIndex - 1).y) {
+			if (points.size() == 2) {
+				points.add(lastIndex, new Point(selectedPoint.x, points.get(lastIndex - 1).y));
+				selectedIndex += 1;
+			}
+			else {
+				points.get(lastIndex - 1).setLocation(selectedPoint.x, points.get(lastIndex - 2).y);
+			}
 		}
 		drawLines(gr);
+	}
+
+	private int getLastIndex() {
+		return points.size() - 1;
 	}
 
 	@Override
@@ -89,8 +145,12 @@ public class ConnectorElement extends AbstractGraphElement {
 	}
 
 	private void drawLines(Graphics gr) {
-		for (int i = 1; i < points.length; i++) {
-			gr.drawLine(points[i - 1].x, points[i - 1].y, points[i].x, points[i].y);
+		Iterator<Point> it = points.iterator();
+		Point pt1 = it.next();
+		while (it.hasNext()) {
+			Point pt2 = it.next();
+			gr.drawLine(pt1.x, pt1.y, pt2.x, pt2.y);
+			pt1 = pt2;
 		}
 	}
 
@@ -101,13 +161,13 @@ public class ConnectorElement extends AbstractGraphElement {
 	}
 
 	public Point getPoint(int i) {
-		return points[i];
+		return points.get(i);
 	}
 
 	@Override
 	public void deselect() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
