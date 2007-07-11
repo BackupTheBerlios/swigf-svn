@@ -1,3 +1,8 @@
+/**
+ * (c) 2007 by Axel Sammet
+ *
+ * This file is under the CPL. For details see the enclosed file cpl.txt.
+ */
 package simpleeditor;
 
 import java.awt.Point;
@@ -30,8 +35,8 @@ public class SimpleEditor extends JFrame {
 			scene.addElement(new RectangularElement(scene, "Test" + i), 100 + i * 2, 100 + i * 2);
 		}
 		for (int i = 0; i < 5; i++) {
-			scene.addElement(new ConnectorElement(scene, new Point(150 + i * 5, 100 + i * 5),
-					new Point(200 + i * 5, 100 + i * 5)), 0, 0);
+			scene.addElement(new ConnectorElement(scene, new Point(150 + i * 20, 100 + i * 20),
+					new Point(400 + i * 20, 100 + i * 20)), 0, 0);
 		}
 	}
 
