@@ -79,27 +79,21 @@ public class ConnectorElement extends AbstractGraphElement {
 	public void drag(int x, int y) {
 		Graphics gr = scene.getGraphics();
 		gr.setXORMode(Color.YELLOW);
-		drawLines(gr);
+		// drawLines(gr);
 
 		// some point neighbouring the edge
 		if (selectedIndex == 1 && points.size() > 2) {
 			Point pt = points.get(0);
-			points.add(1, new Point((pt.x - x) / 2 + pt.x, (pt.y - points.get(0).y) / 2
-					+ points.get(0).y));
-			points.add(1, new Point((pt.x - x) / 2 + pt.x, (pt.y - points.get(0).y) / 2
-					+ points.get(0).y));
-			selectedIndex = 2;
+			addTwoPointsBetween(1, pt, x, y);
+			selectedIndex = 3;
 		}
 		if (selectedIndex == getLastIndex() - 1 && points.size() > 2) {
 			Point pt = points.get(getLastIndex());
-			points.add(getLastIndex() - 1, new Point((pt.x - x) / 2 + pt.x,
-					(pt.y - points.get(0).y) / 2 + points.get(0).y));
-			points.add(getLastIndex() - 1, new Point((pt.x - x) / 2 + pt.x,
-					(pt.y - points.get(0).y) / 2 + points.get(0).y));
+			addTwoPointsBetween(getLastIndex(), pt, x, y);
 		}
-		if (selectedIndex > 1 && selectedIndex < getLastIndex() - 1) {
+		if (selectedIndex > 1 && selectedIndex < getLastIndex() - 1 && points.size() > 2) {
 			points.get(selectedIndex - 1).setLocation(x, points.get(selectedIndex - 2).y);
-			points.get(selectedIndex + 1).setLocation(y, points.get(selectedIndex + 2).y);
+			points.get(selectedIndex + 1).setLocation(points.get(selectedIndex + 2).x, y);
 		}
 
 		// selecting and moving the point
@@ -130,11 +124,41 @@ public class ConnectorElement extends AbstractGraphElement {
 				points.get(lastIndex - 1).setLocation(selectedPoint.x, points.get(lastIndex - 2).y);
 			}
 		}
-		drawLines(gr);
+		removePointsInLine();
+		scene.repaint();
 	}
 
 	private int getLastIndex() {
 		return points.size() - 1;
+	}
+
+	/**
+	 * Adds two point halfway between the two given points at the specified index. The second point
+	 * is given with
+	 * 
+	 * @param index
+	 * @param pt1
+	 * @param x
+	 * @param y
+	 */
+	private void addTwoPointsBetween(int index, Point pt1, int x, int y) {
+		points.add(index, new Point((pt1.x - x) / 2 + x, (pt1.y - y) / 2 + y));
+		points.add(index, new Point((pt1.x - x) / 2 + x, (pt1.y - y) / 2 + y));
+	}
+
+	private void removePointsInLine() {
+		for (int i = 1; i < getLastIndex(); i++) {
+			Point pt1 = points.get(i - 1);
+			Point pt2 = points.get(i);
+			Point pt3 = points.get(i + 1);
+			if ((pt1.x == pt2.x && pt2.x == pt3.x) || (pt1.y == pt2.y && pt2.y == pt3.y)) {
+				points.remove(i);
+				if (selectedIndex >= i) {
+					selectedIndex--;
+				}
+				i--;
+			}
+		}
 	}
 
 	@Override
