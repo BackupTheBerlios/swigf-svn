@@ -80,16 +80,16 @@ public class ConnectorElement extends AbstractGraphElement {
 		Graphics gr = scene.getGraphics();
 		gr.setXORMode(Color.YELLOW);
 		// drawLines(gr);
-
+		Point selectedPoint = points.get(selectedIndex);
 		// some point neighbouring the edge
 		if (selectedIndex == 1 && points.size() > 2) {
 			Point pt = points.get(0);
-			addTwoPointsBetween(1, pt, x, y);
-			selectedIndex = 3;
+			addPointBetween(1, pt, selectedPoint);
+			selectedIndex = 2;
 		}
 		if (selectedIndex == getLastIndex() - 1 && points.size() > 2) {
 			Point pt = points.get(getLastIndex());
-			addTwoPointsBetween(getLastIndex(), pt, x, y);
+			addPointBetween(getLastIndex(), pt, selectedPoint);
 		}
 		if (selectedIndex > 1 && selectedIndex < getLastIndex() - 1 && points.size() > 2) {
 			points.get(selectedIndex - 1).setLocation(x, points.get(selectedIndex - 2).y);
@@ -100,7 +100,7 @@ public class ConnectorElement extends AbstractGraphElement {
 		if (selectedIndex >= 0) {
 			points.get(selectedIndex).setLocation(x, y);
 		}
-		Point selectedPoint = points.get(selectedIndex);
+
 
 		// moving the start point
 		if (selectedIndex == 0 && selectedPoint.x != points.get(1).x
@@ -138,14 +138,16 @@ public class ConnectorElement extends AbstractGraphElement {
 	 * 
 	 * @param index
 	 * @param pt1
-	 * @param x
-	 * @param y
+	 * @param pt2
 	 */
-	private void addTwoPointsBetween(int index, Point pt1, int x, int y) {
-		points.add(index, new Point((pt1.x - x) / 2 + x, (pt1.y - y) / 2 + y));
-		points.add(index, new Point((pt1.x - x) / 2 + x, (pt1.y - y) / 2 + y));
+	private void addPointBetween(int index, Point pt1, Point pt2) {
+		points.add(index, new Point((pt1.x - pt2.x) / 2 + pt2.x, (pt1.y - pt2.y) / 2 + pt2.y));
 	}
 
+	/**
+	 * Checks the point list for three points in a horizontal or vertical line. If such a triple is 
+	 * found, the middle point is removed.
+	 */
 	private void removePointsInLine() {
 		for (int i = 1; i < getLastIndex(); i++) {
 			Point pt1 = points.get(i - 1);
@@ -153,8 +155,13 @@ public class ConnectorElement extends AbstractGraphElement {
 			Point pt3 = points.get(i + 1);
 			if ((pt1.x == pt2.x && pt2.x == pt3.x) || (pt1.y == pt2.y && pt2.y == pt3.y)) {
 				points.remove(i);
-				if (selectedIndex >= i) {
+				if (selectedIndex > i) {
 					selectedIndex--;
+				}
+				if (selectedIndex == i) {
+					if (selectedIndex == getLastIndex()) {
+						selectedIndex--;
+					}
 				}
 				i--;
 			}
