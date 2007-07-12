@@ -47,12 +47,14 @@ public class RectangularElement extends AbstractGraphElement {
 		gr.translate(-rectx, -recty);
 		scene.paint(gr);
 		// copy the buffer back to the foreground
-		scene.getGraphics().drawImage(bufferedImage, rectx, recty, null);
-		drawSelection();
+		Graphics sceneGraphics = scene.getGraphics();
+		sceneGraphics.drawImage(bufferedImage, rectx, recty, null);
+		paintSelection(sceneGraphics);
 	}
 	
 	@Override
 	public void deselect() {
+		super.deselect();
 		BufferedImage bufferedImage = new BufferedImage(getBounds().width,
 				getBounds().height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D gr = bufferedImage.createGraphics();
@@ -74,7 +76,7 @@ public class RectangularElement extends AbstractGraphElement {
 	}
 
 	@Override
-	public void paint(Graphics gr) {
+	public void paintElement(Graphics gr) {
 		gr.setColor(background);
 		gr.fillRect(getBounds().x, getBounds().y, getBounds().width, getBounds().height);
 		gr.setColor(foreground);

@@ -19,18 +19,44 @@ public abstract class AbstractGraphElement {
 	protected String name;
 	private Rectangle bounds;
 	private Point selectionOffset;
+	private boolean selected;
 
 	public AbstractGraphElement(Scene scene) {
 		this.scene = scene;
 	}
 
 	/**
-	 * Paints the element.
+	 * Paints the element and - if necessary - its selection.
 	 * 
 	 * @param gr
 	 */
-	public abstract void paint(Graphics gr);
+	public void paint(Graphics gr) {
+		paintElement(gr);
+		if (isSelected()) {
+			paintSelection(gr);
+		}
+	}
+	
+	/**
+	 * Paints the element.
+	 * @param gr
+	 */
+	public abstract void paintElement(Graphics gr);
 
+	/**
+	 * Override this method if a seleced element should be marked with some kind of frame <b>after</b>
+	 * normal painting im method paintElment(). The default implementation draws a dashed rectangle
+	 * around the bounds of the element.
+	 * @param gr
+	 */
+	protected void paintSelection(Graphics gr) {
+		Graphics2D g = (Graphics2D) scene.getGraphics();
+		g.setStroke(new BasicStroke(0, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1,
+				new float[] { 3, 3 }, 0.5f));
+		g.setColor(Color.MAGENTA);
+		g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
+	
 	/**
 	 * Checks wether the current object contains the given coordinates.
 	 * 
@@ -47,24 +73,40 @@ public abstract class AbstractGraphElement {
 	 * @param x
 	 * @param y
 	 */
-	public void select(int x, int y) {
+	public final void select(int x, int y) {
+		selected = true;
 		selectionOffset = new Point(x - bounds.x, y - bounds.y);
-		drawSelection();
+		prepareSelect(x, y);
+		paintSelection(scene.getGraphics());
+	}
+	
+	protected void prepareSelect(int x, int y) {
+		
+	}
+	
+	/**
+	 * Returns true, if the element is selected.
+	 * @return
+	 */
+	public boolean isSelected() {
+		return selected;
 	}
 
-	protected void drawSelection() {
-		Graphics2D g = (Graphics2D) scene.getGraphics();
-		g.setStroke(new BasicStroke(0, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1,
-				new float[] { 3, 3 }, 0.5f));
-		g.setColor(Color.MAGENTA);
-		g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+	/**
+	 * This method is called, when an object is released. The default implementation does nothing.
+	 *
+	 */
+	public void release() {
+		
 	}
 	
 	/**
 	 * Repaint the selected area and do any cleanup necessary at deselection.
 	 *
 	 */
-	public abstract void deselect();
+	public void deselect() {
+		selected = false;
+	}
 
 	/**
 	 * Drags the element from its current position to the given coordinates. The responsibility to

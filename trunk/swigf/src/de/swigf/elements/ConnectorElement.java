@@ -53,8 +53,7 @@ public class ConnectorElement extends AbstractGraphElement {
 	}
 
 	@Override
-	protected void drawSelection() {
-		Graphics gr = scene.getGraphics();
+	protected void paintSelection(Graphics gr) {
 		gr.setColor(scene.getSelectionColor());
 		for (Point pt : points) {
 			gr.drawRect(pt.x - selectionWidth / 2, pt.y - selectionWidth / 2, selectionWidth,
@@ -63,7 +62,7 @@ public class ConnectorElement extends AbstractGraphElement {
 	}
 
 	@Override
-	public void select(int x, int y) {
+	public void prepareSelect(int x, int y) {
 		selectedIndex = -1;
 		for (int i = 0; i < points.size(); i++) {
 			Point pt = points.get(i);
@@ -72,13 +71,15 @@ public class ConnectorElement extends AbstractGraphElement {
 				selectedIndex = i;
 			}
 		}
-		drawSelection();
 	}
 
 	@Override
 	public void drag(int x, int y) {
-		Graphics gr = scene.getGraphics();
-		gr.setXORMode(Color.YELLOW);
+		if (selectedIndex<0) {
+			return;
+		}
+		// Graphics gr = scene.getGraphics();
+		// gr.setXORMode(Color.YELLOW);
 		// drawLines(gr);
 		Point selectedPoint = points.get(selectedIndex);
 		// some point neighbouring the edge
@@ -91,6 +92,8 @@ public class ConnectorElement extends AbstractGraphElement {
 			Point pt = points.get(getLastIndex());
 			addPointBetween(getLastIndex(), pt, selectedPoint);
 		}
+		// for points in the middle move the two adjacent points on either the same horizontal
+		// or same vertical line
 		if (selectedIndex > 1 && selectedIndex < getLastIndex() - 1 && points.size() > 2) {
 			points.get(selectedIndex - 1).setLocation(x, points.get(selectedIndex - 2).y);
 			points.get(selectedIndex + 1).setLocation(points.get(selectedIndex + 2).x, y);
@@ -124,10 +127,15 @@ public class ConnectorElement extends AbstractGraphElement {
 				points.get(lastIndex - 1).setLocation(selectedPoint.x, points.get(lastIndex - 2).y);
 			}
 		}
-		removePointsInLine();
 		scene.repaint();
 	}
 
+	@Override
+	public void release() {
+		removePointsInLine();
+		scene.repaint();
+	}
+	
 	private int getLastIndex() {
 		return points.size() - 1;
 	}
@@ -141,6 +149,7 @@ public class ConnectorElement extends AbstractGraphElement {
 	 * @param pt2
 	 */
 	private void addPointBetween(int index, Point pt1, Point pt2) {
+		points.add(index, new Point((pt1.x - pt2.x) / 2 + pt2.x, (pt1.y - pt2.y) / 2 + pt2.y));
 		points.add(index, new Point((pt1.x - pt2.x) / 2 + pt2.x, (pt1.y - pt2.y) / 2 + pt2.y));
 	}
 
@@ -175,7 +184,7 @@ public class ConnectorElement extends AbstractGraphElement {
 	}
 
 	@Override
-	public void paint(Graphics gr) {
+	public void paintElement(Graphics gr) {
 		gr.setColor(foreground);
 		drawLines(gr);
 	}
@@ -200,10 +209,5 @@ public class ConnectorElement extends AbstractGraphElement {
 		return points.get(i);
 	}
 
-	@Override
-	public void deselect() {
-		// TODO Auto-generated method stub
-
-	}
 
 }

@@ -28,6 +28,7 @@ public class SceneController extends MouseInputAdapter {
 	public void mousePressed(MouseEvent e) {
 		if (selectedObject != null) {
 			selectedObject.deselect();
+			scene.repaint();
 		}
 		selectedObject = scene.findElement(e.getX(), e.getY());
 		if (selectedObject != null) {
@@ -36,7 +37,9 @@ public class SceneController extends MouseInputAdapter {
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if (selectedObject != null) {
+			selectedObject.release();
+		}
 
 	}
 
