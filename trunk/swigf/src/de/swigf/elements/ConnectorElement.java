@@ -82,6 +82,7 @@ public class ConnectorElement extends AbstractGraphElement {
 		// gr.setXORMode(Color.YELLOW);
 		// drawLines(gr);
 		Point selectedPoint = points.get(selectedIndex);
+		Point newpos = snapToGrid(new Point(x, y));
 		// some point neighbouring the edge
 		if (selectedIndex == 1 && points.size() > 2) {
 			Point pt = points.get(0);
@@ -95,13 +96,13 @@ public class ConnectorElement extends AbstractGraphElement {
 		// for points in the middle move the two adjacent points on either the same horizontal
 		// or same vertical line
 		if (selectedIndex > 1 && selectedIndex < getLastIndex() - 1 && points.size() > 2) {
-			points.get(selectedIndex - 1).setLocation(x, points.get(selectedIndex - 2).y);
-			points.get(selectedIndex + 1).setLocation(points.get(selectedIndex + 2).x, y);
+			points.get(selectedIndex - 1).setLocation(newpos.x, points.get(selectedIndex - 2).y);
+			points.get(selectedIndex + 1).setLocation(points.get(selectedIndex + 2).x, newpos.y);
 		}
 
 		// selecting and moving the point
 		if (selectedIndex >= 0) {
-			points.get(selectedIndex).setLocation(x, y);
+			points.get(selectedIndex).setLocation(newpos);
 		}
 
 
@@ -179,7 +180,9 @@ public class ConnectorElement extends AbstractGraphElement {
 
 	@Override
 	public Point[] getDockingPoints() {
-		// TODO Auto-generated method stub
+		if (isSelected())  {
+			return new Point[] { points.get(selectedIndex)};
+		}
 		return null;
 	}
 
