@@ -75,7 +75,7 @@ public class ConnectorElement extends AbstractGraphElement {
 
 	@Override
 	public void drag(int x, int y) {
-		if (selectedIndex<0) {
+		if (selectedIndex < 0) {
 			return;
 		}
 		// Graphics gr = scene.getGraphics();
@@ -96,39 +96,60 @@ public class ConnectorElement extends AbstractGraphElement {
 		// for points in the middle move the two adjacent points on either the same horizontal
 		// or same vertical line
 		if (selectedIndex > 1 && selectedIndex < getLastIndex() - 1 && points.size() > 2) {
-			points.get(selectedIndex - 1).setLocation(newpos.x, points.get(selectedIndex - 2).y);
-			points.get(selectedIndex + 1).setLocation(points.get(selectedIndex + 2).x, newpos.y);
+			movePoint(Direction.previous, selectedPoint, newpos);
+			movePoint(Direction.next, selectedPoint, newpos);
 		}
-
-		// selecting and moving the point
-		if (selectedIndex >= 0) {
-			points.get(selectedIndex).setLocation(newpos);
-		}
-
 
 		// moving the start point
-		if (selectedIndex == 0 && selectedPoint.x != points.get(1).x
-				&& selectedPoint.y != points.get(1).y) {
+		if (selectedIndex == 0 && newpos.x != points.get(1).x
+				&& newpos.y != points.get(1).y) {
 			if (points.size() == 2) {
-				points.add(1, new Point(selectedPoint.x, points.get(1).y));
+				points.add(1, new Point(newpos.x, points.get(1).y));
 			}
 			else {
-				points.get(1).setLocation(selectedPoint.x, points.get(2).y);
+				movePoint(Direction.next, selectedPoint, newpos);
 			}
 		}
+
 		// moving the end point
 		int lastIndex = points.size() - 1;
-		if (selectedIndex == lastIndex && selectedPoint.x != points.get(lastIndex - 1).x
-				&& selectedPoint.y != points.get(lastIndex - 1).y) {
+		if (selectedIndex == lastIndex && newpos.x != points.get(lastIndex - 1).x
+				&& newpos.y != points.get(lastIndex - 1).y) {
 			if (points.size() == 2) {
 				points.add(lastIndex, new Point(selectedPoint.x, points.get(lastIndex - 1).y));
 				selectedIndex += 1;
 			}
 			else {
-				points.get(lastIndex - 1).setLocation(selectedPoint.x, points.get(lastIndex - 2).y);
+				movePoint(Direction.previous, selectedPoint, newpos);
 			}
 		}
+		
+		// selecting and moving the point
+		if (selectedIndex >= 0) {
+			points.get(selectedIndex).setLocation(newpos);
+		}
+
 		scene.repaint();
+	}
+
+	enum Direction {
+		previous, next
+	};
+
+	private void movePoint(Direction neighbour, Point selectedPoint, Point newpos) {
+		// we don't want points to jump around. Thus check the former orientation
+		int delta = +1;
+		if (neighbour == Direction.previous) {
+			delta = -1;
+		}
+		if (points.get(selectedIndex + delta).x == selectedPoint.x) {
+			points.get(selectedIndex + delta).setLocation(newpos.x,
+					points.get(selectedIndex + 2 * delta).y);
+		}
+		else {
+			points.get(selectedIndex + delta).setLocation(points.get(selectedIndex + 2 * delta).x,
+					newpos.y);
+		}
 	}
 
 	@Override
@@ -136,7 +157,7 @@ public class ConnectorElement extends AbstractGraphElement {
 		removePointsInLine();
 		scene.repaint();
 	}
-	
+
 	private int getLastIndex() {
 		return points.size() - 1;
 	}
@@ -155,7 +176,7 @@ public class ConnectorElement extends AbstractGraphElement {
 	}
 
 	/**
-	 * Checks the point list for three points in a horizontal or vertical line. If such a triple is 
+	 * Checks the point list for three points in a horizontal or vertical line. If such a triple is
 	 * found, the middle point is removed.
 	 */
 	private void removePointsInLine() {
@@ -180,8 +201,8 @@ public class ConnectorElement extends AbstractGraphElement {
 
 	@Override
 	public Point[] getDockingPoints() {
-		if (isSelected())  {
-			return new Point[] { points.get(selectedIndex)};
+		if (isSelected()) {
+			return new Point[] { points.get(selectedIndex) };
 		}
 		return null;
 	}
@@ -211,6 +232,5 @@ public class ConnectorElement extends AbstractGraphElement {
 	public Point getPoint(int i) {
 		return points.get(i);
 	}
-
 
 }
