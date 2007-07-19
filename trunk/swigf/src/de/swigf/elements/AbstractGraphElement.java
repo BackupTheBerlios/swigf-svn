@@ -13,6 +13,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 import de.swigf.scene.Scene;
+import de.swigf.util.VectorMath;
 
 public abstract class AbstractGraphElement {
 	protected Scene scene;
@@ -143,15 +144,26 @@ public abstract class AbstractGraphElement {
 			currentSnap.y = ((originalPoint.y + dockPt.y + scene.getGridSpace() / 2) / scene
 					.getGridSpace())
 					* scene.getGridSpace() - dockPt.y;
-			if (distance(originalPoint, currentSnap) < distance(originalPoint, snappedPoint)) {
+			if (VectorMath.squaredDistance(originalPoint, currentSnap) < VectorMath.squaredDistance(originalPoint, snappedPoint)) {
 				snappedPoint = new Point(currentSnap.x, currentSnap.y);
 			}
 		}
 		return snappedPoint;
 	}
-
-	private int distance(Point pt, Point pt2) {
-		return (pt.x - pt2.x) * (pt.x - pt2.x) + (pt.y - pt2.y) * (pt.y - pt2.y);
+	
+	protected Point snapToObject(Point originalPoint) {
+		originalPoint.translate(-getPosition().x, -getPosition().y);
+		Point ret = null;
+		int distance = Integer.MAX_VALUE;
+		for (Point pt: getDockingPoints()) {
+			int currentDist = VectorMath.squaredDistance(pt, originalPoint);
+			if (distance>currentDist) {
+				ret = pt;
+				distance = currentDist;
+			}
+		}
+		ret.translate(getPosition().x, getPosition().y);
+		return ret;
 	}
 
 	public Point getPosition() {

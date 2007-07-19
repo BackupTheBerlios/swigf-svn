@@ -51,12 +51,12 @@ public class RectangularElement extends AbstractGraphElement {
 		sceneGraphics.drawImage(bufferedImage, rectx, recty, null);
 		paintSelection(sceneGraphics);
 	}
-	
+
 	@Override
 	public void deselect() {
 		super.deselect();
-		BufferedImage bufferedImage = new BufferedImage(getBounds().width,
-				getBounds().height, BufferedImage.TYPE_INT_RGB);
+		BufferedImage bufferedImage = new BufferedImage(getBounds().width, getBounds().height,
+				BufferedImage.TYPE_INT_RGB);
 		Graphics2D gr = bufferedImage.createGraphics();
 		// as the buffer only contains a small clipping area of the scene, we have to translate with
 		// the offset and then repaint the scene in the buffer
@@ -102,6 +102,9 @@ public class RectangularElement extends AbstractGraphElement {
 	@Override
 	public Point[] getDockingPoints() {
 		return new Point[] { new Point(0, 0), new Point(getBounds().width / 2, 0),
-				new Point(getBounds().width, 0) };
+				new Point(getBounds().width, 0),
+				new Point(getBounds().width / 2, getBounds().height),
+				new Point(getBounds().width, getBounds().height / 2),
+				new Point(0, getBounds().height / 2) };
 	}
 }

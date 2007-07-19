@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
@@ -129,22 +130,47 @@ public class Scene extends JComponent {
 	}
 
 	/**
+	 * Finds the last element of the scene, which contains the given coordinates excluding the given
+	 * object. 
+	 * @param x
+	 * @param y
+	 * @param exclude
+	 * @return
+	 */
+	public AbstractGraphElement findElementExcluding(int x, int y, AbstractGraphElement exclude) {
+		// REMARK: searching for elements could be optimized by organizing the element into a quad
+		// tree
+		for (int i = elements.size() - 1; i >= 0; i--) {
+			AbstractGraphElement el = elements.get(i);
+			if (el!=exclude && el.contains(x, y)) {
+				return el;
+			}
+		}
+		return null;
+	}
+
+	public AbstractGraphElement findElementExcluding(Point pt, AbstractGraphElement exclude) {
+		return findElementExcluding(pt.x, pt.y, exclude);
+	}
+	/**
 	 * Find the last element of the scene, which contains the given coordinates.
 	 * 
 	 * @param x
 	 * @param y
 	 * @return
 	 */
-	AbstractGraphElement findElement(int x, int y) {
-		// REMARK: searching for elements could be optimized by organizing the element into a quad
-		// tree
-		for (int i = elements.size() - 1; i >= 0; i--) {
-			AbstractGraphElement el = elements.get(i);
-			if (el.contains(x, y)) {
-				return el;
-			}
-		}
-		return null;
+	public AbstractGraphElement findElement(int x, int y) {
+		return findElementExcluding(x, y, null);
+	}
+	
+	/**
+	 * Find the last element of the scene, which contains the given coordinates.
+	 * 
+	 * @param pt
+	 * @return
+	 */
+	public AbstractGraphElement findElement(Point pt) {
+		return findElement(pt.x, pt.y);
 	}
 
 	public int getGridSpace() {

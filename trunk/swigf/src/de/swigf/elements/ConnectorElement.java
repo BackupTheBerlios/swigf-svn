@@ -16,11 +16,13 @@ import java.util.List;
 import de.swigf.scene.Scene;
 
 public class ConnectorElement extends AbstractGraphElement {
+	private static final int selectionWidth = 10;
+	private static final int accuracy = selectionWidth;
 	private List<Point> points;
 	private int selectedIndex;
-	private static final int selectionWidth = 10;
 	private Color foreground = Color.BLACK;
-	private static final int accuracy = selectionWidth;
+	private AbstractGraphElement startElement;
+	private AbstractGraphElement endElement;
 
 	public ConnectorElement(Scene scene, Point pt1, Point pt2) {
 		super(scene);
@@ -83,15 +85,19 @@ public class ConnectorElement extends AbstractGraphElement {
 		// drawLines(gr);
 		Point selectedPoint = points.get(selectedIndex);
 		Point newpos = snapToGrid(new Point(x, y));
+		AbstractGraphElement dockingObject = scene.findElementExcluding(x, y, this);
+		if (dockingObject != null) {
+			newpos = dockingObject.snapToObject(new Point(x, y));
+		}
 		// some point neighbouring the edge
 		if (selectedIndex == 1 && points.size() > 2) {
 			Point pt = points.get(0);
-			addPointBetween(1, pt, selectedPoint);
+			addPointsBetween(1, pt, selectedPoint);
 			selectedIndex = 2;
 		}
 		if (selectedIndex == getLastIndex() - 1 && points.size() > 2) {
 			Point pt = points.get(getLastIndex());
-			addPointBetween(getLastIndex(), pt, selectedPoint);
+			addPointsBetween(getLastIndex(), pt, selectedPoint);
 		}
 		// for points in the middle move the two adjacent points on either the same horizontal
 		// or same vertical line
@@ -101,8 +107,7 @@ public class ConnectorElement extends AbstractGraphElement {
 		}
 
 		// moving the start point
-		if (selectedIndex == 0 && newpos.x != points.get(1).x
-				&& newpos.y != points.get(1).y) {
+		if (selectedIndex == 0 && newpos.x != points.get(1).x && newpos.y != points.get(1).y) {
 			if (points.size() == 2) {
 				points.add(1, new Point(newpos.x, points.get(1).y));
 			}
@@ -123,7 +128,7 @@ public class ConnectorElement extends AbstractGraphElement {
 				movePoint(Direction.previous, selectedPoint, newpos);
 			}
 		}
-		
+
 		// selecting and moving the point
 		if (selectedIndex >= 0) {
 			points.get(selectedIndex).setLocation(newpos);
@@ -170,7 +175,7 @@ public class ConnectorElement extends AbstractGraphElement {
 	 * @param pt1
 	 * @param pt2
 	 */
-	private void addPointBetween(int index, Point pt1, Point pt2) {
+	private void addPointsBetween(int index, Point pt1, Point pt2) {
 		points.add(index, new Point((pt1.x - pt2.x) / 2 + pt2.x, (pt1.y - pt2.y) / 2 + pt2.y));
 		points.add(index, new Point((pt1.x - pt2.x) / 2 + pt2.x, (pt1.y - pt2.y) / 2 + pt2.y));
 	}
