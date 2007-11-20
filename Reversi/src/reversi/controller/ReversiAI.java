@@ -16,6 +16,9 @@ public class ReversiAI {
 	private Controller controller;
 	private BoardMemory boardMemory = new BoardMemory(100000);
 	private long endtime;
+	private int compcol;
+	private int time = 1;
+	private int minDepth = 6;
 	private static final int BIGVAL = 10000000;
 
 	public ReversiAI(Controller controller) {
@@ -35,10 +38,33 @@ public class ReversiAI {
 		return freePositions;
 	}
 
-	public int iterativeDeepening(Board brd, Point bestField, int color, int time) {
+	public Thread play(final Board brd, final int color) {
+		Thread tr = new Thread(new Runnable() {
+			public void run() {
+				long time = System.currentTimeMillis();
+				Point bestField = new Point();
+				int val = iterativeDeepening(brd, bestField, color);
+				System.out.println("Searched " + noOfNodes + " nodes in "
+						+ (System.currentTimeMillis() - time) + " ms");
+				System.out.println("Playing " + bestField + " with value " + val + " for color "
+						+ color);
+				if (!controller.playPiece(bestField.x, bestField.y, color)) {
+					System.err.println("ERROR: illegal move");
+				}
+			}
+		});
+		tr.start();
+		return tr;
+	}
+
+	public int iterativeDeepening(Board brd, Point bestField, int color) {
+		noOfNodes = 0;
+		compcol = color;
 		endtime = System.currentTimeMillis() + time * 1000; // time
 		int val = 0;
-		for (int i = 1; i < 60 && System.currentTimeMillis() <= endtime && Math.abs(val) < 1000; i++) {
+		// go deeper if there is time left and not an endgame in sight
+		for (int i = 1; i < 60 && Math.abs(val) < 1000
+				&& (System.currentTimeMillis() < endtime || i <= minDepth); i++) {
 			val = negamax(brd, bestField, color, 0, i, -BIGVAL, BIGVAL);
 			System.out.println(i + " best field " + bestField + " : " + val);
 			if (!brd.isFreeToSet(bestField, color)) {
@@ -51,11 +77,11 @@ public class ReversiAI {
 	public int negamax(Board brd, Point bestField, int color, int depth, int endDepth, int minVal,
 			int maxVal) {
 		noOfNodes++;
-		if (System.currentTimeMillis() >= endtime) {
-			return -BIGVAL*color*Board.WHITE;
-		}
 		if (depth == endDepth) {
 			return calcBoardValue(brd) * color;
+		}
+		if (depth >= minDepth && System.currentTimeMillis() > endtime) {
+			return -BIGVAL * color * compcol;
 		}
 
 		LinkedList<Point> freeFields = createFreePositions(brd, color);
@@ -66,7 +92,7 @@ public class ReversiAI {
 			freeFields.addFirst(bestField);
 		}
 
-		int max = -BIGVAL+1;
+		int max = -BIGVAL - 1;
 		for (Point pt : freeFields) {
 			Board newBoard = new Board(brd);
 			newBoard.setPiece(pt, color);
@@ -85,7 +111,7 @@ public class ReversiAI {
 			}
 		}
 		// no free fields => skip move
-		if (max == -BIGVAL+1) {
+		if (max == -BIGVAL - 1) {
 			max = -negamax(brd, bestField, -color, depth + 1, endDepth, minVal, maxVal);
 			bestField = null;
 		}
@@ -93,26 +119,6 @@ public class ReversiAI {
 			boardMemory.put(brd, max, bestField);
 		}
 		return max;
-	}
-
-	public Thread play(final Board brd, final int color) {
-		Thread tr = new Thread(new Runnable() {
-			public void run() {
-				long time = System.currentTimeMillis();
-				noOfNodes = 0;
-				Point bestField = new Point();
-				int val = iterativeDeepening(brd, bestField, color, 1);
-				System.out.println("Searched " + noOfNodes + " nodes in "
-						+ (System.currentTimeMillis() - time) + " ms");
-				System.out.println("Playing " + bestField + " with value " + val + " for color "
-						+ color);
-				if (!controller.playPiece(bestField.x, bestField.y, color)) {
-					System.err.println("ERROR: illegal move");
-				}
-			}
-		});
-		tr.start();
-		return tr;
 	}
 
 	public int calcBoardValue(Board brd) {
@@ -127,8 +133,8 @@ public class ReversiAI {
 				blackfree += brd.isFreeToSet(new Point(x, y), Board.BLACK) ? -1 : 0;
 				if ((x == 0 && y == 0) || (x == 7 && y == 0) || (x == 0 && y == 7)
 						|| (x == 7 && y == 7)) {
-					if (brd.getField(x, y)!=0) 
-					bonus += 100 * brd.getField(x, y);
+					if (brd.getField(x, y) != 0)
+						bonus += 100 * brd.getField(x, y);
 				}
 				if (x == 0 || x == 7 || y == 0 || y == 7) {
 					bonus += 3 * brd.getField(x, y);
@@ -139,5 +145,25 @@ public class ReversiAI {
 			return count * 1000;
 		}
 		return bonus + (blackfree + whitefree);
+	}
+
+	public int getMinDepth() {
+		return minDepth;
+	}
+
+	public void setMinDepth(int minDepth) {
+		this.minDepth = minDepth;
+	}
+
+	public int getTime() {
+		return time;
+	}
+
+	public void setTime(int time) {
+		this.time = time;
+	}
+
+	public long getNoOfNodes() {
+		return noOfNodes;
 	}
 }

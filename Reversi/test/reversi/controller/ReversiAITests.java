@@ -5,6 +5,8 @@
  */
 package reversi.controller;
 
+import java.awt.Point;
+
 import junit.framework.TestCase;
 import reversi.model.Board;
 
@@ -32,9 +34,14 @@ public class ReversiAITests extends TestCase {
 		Board brd = createBoard(cornerProb);
 		System.out.println(brd);
 		ReversiAI ai = new ReversiAI(new Controller(brd, null));
-		Thread tr = ai.play(brd, Board.BLACK);
-		tr.join();
-		System.out.println(brd);
+		ai.setMinDepth(9);
+		ai.setTime(0);
+		Point bestField = new Point();
+		long time = System.currentTimeMillis();
+		ai.iterativeDeepening(brd, bestField, Board.BLACK);
+		assertFalse("Unseen corner loss.", new Point(6, 0).equals(bestField));
+		System.out.println("evaluated " + ai.getNoOfNodes() + " nodes in "
+				+ (System.currentTimeMillis() - time) + " ms");
 	}
 
 	private Board createBoard(int[] fields) {

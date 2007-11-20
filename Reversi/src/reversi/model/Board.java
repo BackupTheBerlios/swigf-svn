@@ -46,7 +46,7 @@ public class Board {
 	public Board() {
 		fields = new int[SIZE * LINESIZE];
 		init();
-		movingColor = BLACK;
+		movingColor = WHITE;
 	}
 
 	public Board(Board brd) {

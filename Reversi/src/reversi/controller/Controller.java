@@ -23,8 +23,8 @@ public class Controller {
 	public Controller(Board brd, ReversiFrame frame) {
 		this.brd = brd;
 		this.frame = frame;
-		player[1] = COMPUTER;
-		player[0] = HUMAN;
+		player[0] = COMPUTER;
+		player[1] = HUMAN;
 		reversiAI = new ReversiAI(this);
 	}
 
