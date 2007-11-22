@@ -88,7 +88,7 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 						g.fillOval(x * cellWidth + 6, y * cellHeight + 6, cellWidth - 12,
 								cellHeight - 12);
 					}
-					else if (showPossibleMoves && brd.isFreeToSet(new Point(x, y), brd.movingColor)) {
+					else if (showPossibleMoves && brd.isFreeToSet(new Point(x, y), brd.getMovingColor())) {
 						g.setColor(Color.RED);
 						g.fillOval(x*cellWidth+cellWidth/2-3, y*cellHeight+cellHeight/2-3, 6, 6);
 					}

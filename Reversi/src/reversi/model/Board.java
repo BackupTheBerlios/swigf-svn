@@ -41,7 +41,7 @@ public class Board {
 	private int fields[];
 	private List<ModelChangeListener> listeners = new LinkedList<ModelChangeListener>();
 	private int hashValue;
-	public int movingColor;
+	private int movingColor;
 
 	public Board() {
 		fields = new int[SIZE * LINESIZE];
@@ -275,6 +275,15 @@ public class Board {
 	public void copy(Board brd) {
 		fields = brd.fields;
 		movingColor = brd.movingColor;
+		fireModelChange();
+	}
+
+	public int getMovingColor() {
+		return movingColor;
+	}
+
+	public void setMovingColor(int movingColor) {
+		this.movingColor = movingColor;
 		fireModelChange();
 	}
 }

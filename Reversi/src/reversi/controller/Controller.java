@@ -37,18 +37,18 @@ public class Controller {
 	}
 
 	public int getMovingColor() {
-		return brd.movingColor;
+		return brd.getMovingColor();
 	}
 
 	public boolean playPiece(int x, int y, int color) {
-		if (brd.movingColor == color) {
+		if (brd.getMovingColor() == color) {
 			Point fieldPos = new Point(x, y);
 			if (brd.isFreeToSet(fieldPos, color)) {
 				history.add(new Board(brd));
 				brd.setPiece(x, y, color);
 				// now check, who plays next
 				if (brd.colorCanPlay(-color)) {
-					brd.movingColor = -brd.movingColor;
+					brd.setMovingColor(-brd.getMovingColor());
 				}
 				else {
 					if (!brd.colorCanPlay(color)) {
@@ -56,8 +56,8 @@ public class Controller {
 						return true;
 					}
 				}
-				if (getPlayerMode(brd.movingColor) == COMPUTER) {
-					reversiAI.play(brd, brd.movingColor);
+				if (getPlayerMode(brd.getMovingColor()) == COMPUTER) {
+					reversiAI.play(brd, brd.getMovingColor());
 				}
 				return true;
 			}
