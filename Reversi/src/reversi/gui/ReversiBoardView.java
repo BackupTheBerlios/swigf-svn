@@ -74,10 +74,10 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 					if (field != Board.EMPTY) {
 						Color col;
 						if (field == Board.WHITE) {
-							col = Color.WHITE;
+							col = Color.BLACK;
 						}
 						else {
-							col = Color.BLACK;
+							col = Color.WHITE;
 						}
 						g.setColor(Color.GRAY);
 						g.fillOval(x * cellWidth + 5, y * cellHeight + 5, cellWidth - 10,

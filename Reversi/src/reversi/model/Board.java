@@ -31,11 +31,13 @@ public class Board {
 
 	private static final int[] fieldHashs;
 	static {
-		Random rand = new Random();
+		System.out.println("Hash init");
+		Random rand = new Random(0);
 		fieldHashs = new int[SIZE * LINESIZE];
 		for (int i = 0; i < SIZE * LINESIZE; i++) {
 			fieldHashs[i] = rand.nextInt(Integer.MAX_VALUE);
 		}
+		System.out.println("sample "+fieldHashs[0]);
 	}
 
 	private int fields[];
@@ -57,10 +59,10 @@ public class Board {
 	}
 
 	public void init() {
-		setField(3, 3, WHITE);
-		setField(4, 4, WHITE);
-		setField(3, 4, BLACK);
-		setField(4, 3, BLACK);
+		setField(3, 3, BLACK);
+		setField(4, 4, BLACK);
+		setField(3, 4, WHITE);
+		setField(4, 3, WHITE);
 	}
 
 	public void addModelChangeListener(ModelChangeListener listener) {
@@ -139,6 +141,30 @@ public class Board {
 			}
 		}
 		return false;
+	}
+	
+	public int turnableFields(Point pt, int col) {
+		int count = 0;
+		// the field must free
+		if (!isOutOfBounds(pt) && getField(pt) == EMPTY) {
+			int fieldIndex = indexFromPt(pt.x, pt.y);
+			for (int dir : directions) {
+				// at least one direction has to be set by the opposite color ...
+				int index = fieldIndex + dir;
+				boolean foundline = false;
+				int linecount = 0;
+				while (!isOutOfBounds(index) && getField(index) == -col) {
+					foundline = true;
+					linecount++;
+					index += dir;
+				}
+				// and must be followed by one piece of our own color
+				if (!isOutOfBounds(index) && getField(index) == col && foundline) {
+					count += linecount;
+				}
+			}
+		}		
+		return count;
 	}
 
 	public boolean colorCanPlay(int col) {
@@ -240,11 +266,14 @@ public class Board {
 			fi.close();
 		}
 		catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * Copy the given Board into this instance.
+	 * @param brd
+	 */
 	public void copy(Board brd) {
 		fields = brd.fields;
 		movingColor = brd.movingColor;

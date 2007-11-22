@@ -6,7 +6,10 @@
 package reversi.controller;
 
 import java.awt.Point;
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import reversi.model.Board;
 import reversi.model.BoardMemory;
@@ -25,12 +28,35 @@ public class ReversiAI {
 		this.controller = controller;
 	}
 
-	private LinkedList<Point> createFreePositions(Board brd, int color) {
-		LinkedList<Point> freePositions = new LinkedList<Point>();
+	public static class EvaluatedPoint extends Point implements Comparable<EvaluatedPoint> {
+		public int value;
+
+		public EvaluatedPoint(int x, int y) {
+			super(x, y);
+		}
+
+		public int compareTo(EvaluatedPoint o) {
+			return (value <= o.value) ? 1 : -1;
+		}
+
+		@Override
+		public String toString() {
+			return "EvaluatedPoint(" + x + "," + y + "):" + value;
+		}
+	}
+
+	private SortedSet<Point> createFreePositions(Board brd, int color, Point bestField) {
+		SortedSet<Point> freePositions = new TreeSet<Point>();
 		for (int y = 0; y < Board.SIZE; y++) {
 			for (int x = 0; x < Board.SIZE; x++) {
-				Point pt = new Point(x, y);
+				EvaluatedPoint pt = new EvaluatedPoint(x, y);
 				if (brd.isFreeToSet(pt, color)) {
+					if (pt.equals(bestField)) {
+						pt.value = BIGVAL;
+					}
+					else if (isCorner(x, y)) {
+						pt.value = 100;
+					}
 					freePositions.add(pt);
 				}
 			}
@@ -84,14 +110,15 @@ public class ReversiAI {
 			return -BIGVAL * color * compcol;
 		}
 
-		LinkedList<Point> freeFields = createFreePositions(brd, color);
 		BoardMemory.BoardEvaluation existingEvaluation = boardMemory.get(brd);
 		if (existingEvaluation != null) {
 			bestField.setLocation(existingEvaluation.bestField);
-			freeFields.remove(bestField);
-			freeFields.addFirst(bestField);
 		}
 
+		Collection<Point> freeFields = createFreePositions(brd, color, bestField);
+		if (freeFields.size() < 3 && endDepth < 60) {
+			endDepth++;
+		}
 		int max = -BIGVAL - 1;
 		for (Point pt : freeFields) {
 			Board newBoard = new Board(brd);
@@ -129,14 +156,21 @@ public class ReversiAI {
 		for (int y = 0; y < Board.SIZE; y++) {
 			for (int x = 0; x < Board.SIZE; x++) {
 				count += brd.getField(x, y);
-				whitefree += brd.isFreeToSet(new Point(x, y), Board.WHITE) ? 1 : 0;
-				blackfree += brd.isFreeToSet(new Point(x, y), Board.BLACK) ? -1 : 0;
-				if ((x == 0 && y == 0) || (x == 7 && y == 0) || (x == 0 && y == 7)
-						|| (x == 7 && y == 7)) {
+				Point pt = new Point(x, y);
+				// int turnables = brd.turnableFields(pt, Board.WHITE);
+				// whitefree += turnables == 0 ? 0 : 1;
+				// bonus += turnables;
+				// turnables = brd.turnableFields(pt, Board.BLACK);
+				// blackfree += turnables == 0 ? 0 : 1;
+				// bonus -= turnables;
+
+				whitefree += brd.isFreeToSet(pt, Board.WHITE) ? 1 : 0;
+				blackfree += brd.isFreeToSet(pt, Board.BLACK) ? 1 : 0;
+				if (isCorner(y, x)) {
 					if (brd.getField(x, y) != 0)
-						bonus += 100 * brd.getField(x, y);
+						bonus += 200 * brd.getField(x, y);
 				}
-				if (x == 0 || x == 7 || y == 0 || y == 7) {
+				if (isEdge(y, x)) {
 					bonus += 3 * brd.getField(x, y);
 				}
 			}
@@ -144,7 +178,15 @@ public class ReversiAI {
 		if (whitefree == 0 && blackfree == 0) {
 			return count * 1000;
 		}
-		return bonus + (blackfree + whitefree);
+		return bonus + (-blackfree + whitefree);
+	}
+
+	private boolean isEdge(int y, int x) {
+		return x == 0 || x == 7 || y == 0 || y == 7;
+	}
+
+	private boolean isCorner(int y, int x) {
+		return (x == 0 && y == 0) || (x == 7 && y == 0) || (x == 0 && y == 7) || (x == 7 && y == 7);
 	}
 
 	public int getMinDepth() {

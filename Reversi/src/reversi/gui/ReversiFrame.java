@@ -24,7 +24,8 @@ public class ReversiFrame extends JFrame {
 	private ReversiBoardView boardView;
 	private Board brd;
 	private Controller controller;
-	
+	private JToolBar toolbar;
+
 	public ReversiFrame() {
 		super("Reversi");
 		addWindowListener(new WindowAdapter() {
@@ -60,30 +61,39 @@ public class ReversiFrame extends JFrame {
 		JOptionPane.showMessageDialog(this, message);
 
 	}
-	
+
 	public void createToolbar() {
-		JToolBar jtb = new JToolBar(JToolBar.HORIZONTAL);
-		jtb.setFloatable(false);
-		getContentPane().add(jtb, BorderLayout.NORTH);
-		// save
-		JButton save = new JButton(ResourceManager.getIcon("document-save-as.png"));
-		save.setToolTipText("Save");
-		save.addActionListener(new ActionListener() {
+		toolbar = new JToolBar(JToolBar.HORIZONTAL);
+		toolbar.setFloatable(false);
+		getContentPane().add(toolbar, BorderLayout.NORTH);
+
+		createAction("New game", "document-new.png", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.newGame();
+			};
+		});
+		createAction("Save game", "document-save.png", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				brd.save("test.rev");
 			}
 		});
-		jtb.add(save);
-		// undo
-		JButton undo = new JButton(ResourceManager.getIcon("edit-undo.png"));
-		undo.setToolTipText("Undo");
-		undo.addActionListener(new ActionListener(){
+		createAction("Undo last move", "edit-undo.png", new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				controller.undo();
 			}
 		});
-		jtb.add(undo);
-		
+		createAction("Preferences", "document-properties.png", new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
+	}
+
+	private void createAction(String tooltip, String iconName, ActionListener al) {
+		JButton undo = new JButton(ResourceManager.getIcon(iconName));
+		undo.setToolTipText(tooltip);
+		undo.addActionListener(al);
+		toolbar.add(undo);
 	}
 
 	public static void main(String[] args) {

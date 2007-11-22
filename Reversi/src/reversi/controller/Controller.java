@@ -72,4 +72,8 @@ public class Controller {
 			history.removeLast();
 		}
 	}
+	
+	public void newGame() {
+		brd.copy(new Board());
+	}
 }
