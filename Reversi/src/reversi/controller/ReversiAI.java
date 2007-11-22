@@ -7,7 +7,6 @@ package reversi.controller;
 
 import java.awt.Point;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
