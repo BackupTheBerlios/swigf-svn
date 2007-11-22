@@ -31,13 +31,11 @@ public class Board {
 
 	private static final int[] fieldHashs;
 	static {
-		System.out.println("Hash init");
 		Random rand = new Random(0);
 		fieldHashs = new int[SIZE * LINESIZE];
 		for (int i = 0; i < SIZE * LINESIZE; i++) {
 			fieldHashs[i] = rand.nextInt(Integer.MAX_VALUE);
 		}
-		System.out.println("sample "+fieldHashs[0]);
 	}
 
 	private int fields[];

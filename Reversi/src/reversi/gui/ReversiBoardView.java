@@ -19,9 +19,11 @@ import reversi.controller.Controller;
 import reversi.model.Board;
 
 public class ReversiBoardView extends JComponent implements Board.ModelChangeListener {
+	private static final Color DARKGREEN = new Color(0, 200, 30);
 	private Board brd;
 	private Controller controller;
-	int color = Board.WHITE;
+	private int playingColor = Board.WHITE;
+	private boolean showPossibleMoves = true;
 
 	public ReversiBoardView(Controller ctrl, Board board) {
 		this.controller = ctrl;
@@ -36,7 +38,7 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 				int brdy = e.getY() / cellHeight;
 				if (controller.playPiece(brdx, brdy, controller.getMovingColor())) {
 				}
-				//setCursor(new Cursor(Cursor.WAIT_CURSOR));
+				// setCursor(new Cursor(Cursor.WAIT_CURSOR));
 			}
 		});
 		addMouseMotionListener(new MouseMotionAdapter() {
@@ -46,7 +48,7 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 				int cellHeight = getHeight() / Board.SIZE;
 				int brdx = e.getX() / cellWidth;
 				int brdy = e.getY() / cellHeight;
-				if (brd.isFreeToSet(new Point(brdx, brdy), color)) {
+				if (brd.isFreeToSet(new Point(brdx, brdy), playingColor)) {
 					setCursor(new Cursor(Cursor.HAND_CURSOR));
 				}
 				else {
@@ -60,7 +62,7 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 	public void paint(Graphics g) {
 		int cellWidth = getWidth() / Board.SIZE;
 		int cellHeight = getHeight() / Board.SIZE;
-		g.setColor(Color.GREEN);
+		g.setColor(DARKGREEN);
 		g.fillRect(0, 0, Board.SIZE * cellWidth, Board.SIZE * cellHeight);
 		g.setColor(Color.BLACK);
 		for (int i = 0; i <= Board.SIZE; i++) {
@@ -85,6 +87,10 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 						g.setColor(col);
 						g.fillOval(x * cellWidth + 6, y * cellHeight + 6, cellWidth - 12,
 								cellHeight - 12);
+					}
+					else if (showPossibleMoves && brd.isFreeToSet(new Point(x, y), brd.movingColor)) {
+						g.setColor(Color.RED);
+						g.fillOval(x*cellWidth+cellWidth/2-3, y*cellHeight+cellHeight/2-3, 6, 6);
 					}
 				}
 			}
