@@ -22,7 +22,6 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 	private static final Color DARKGREEN = new Color(0, 200, 30);
 	private Board brd;
 	private Controller controller;
-	private int playingColor = Board.WHITE;
 	private boolean showPossibleMoves = true;
 
 	public ReversiBoardView(Controller ctrl, Board board) {
@@ -48,7 +47,7 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 				int cellHeight = getHeight() / Board.SIZE;
 				int brdx = e.getX() / cellWidth;
 				int brdy = e.getY() / cellHeight;
-				if (brd.isFreeToSet(new Point(brdx, brdy), playingColor)) {
+				if (brd.isFreeToSet(new Point(brdx, brdy), controller.getMovingColor())) {
 					setCursor(new Cursor(Cursor.HAND_CURSOR));
 				}
 				else {
@@ -76,10 +75,10 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 					if (field != Board.EMPTY) {
 						Color col;
 						if (field == Board.WHITE) {
-							col = Color.BLACK;
+							col = Color.WHITE;
 						}
 						else {
-							col = Color.WHITE;
+							col = Color.BLACK;
 						}
 						g.setColor(Color.GRAY);
 						g.fillOval(x * cellWidth + 5, y * cellHeight + 5, cellWidth - 10,
@@ -88,9 +87,11 @@ public class ReversiBoardView extends JComponent implements Board.ModelChangeLis
 						g.fillOval(x * cellWidth + 6, y * cellHeight + 6, cellWidth - 12,
 								cellHeight - 12);
 					}
-					else if (showPossibleMoves && brd.isFreeToSet(new Point(x, y), brd.getMovingColor())) {
+					else if (showPossibleMoves
+							&& brd.isFreeToSet(new Point(x, y), brd.getMovingColor())) {
 						g.setColor(Color.RED);
-						g.fillOval(x*cellWidth+cellWidth/2-3, y*cellHeight+cellHeight/2-3, 6, 6);
+						g.fillOval(x * cellWidth + cellWidth / 2 - 3, y * cellHeight + cellHeight
+								/ 2 - 3, 6, 6);
 					}
 				}
 			}

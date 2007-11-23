@@ -19,8 +19,8 @@ public class Board {
 		public void modelUpdate();
 	}
 
-	public static final int WHITE = 1;
-	public static final int BLACK = -1;
+	public static final int WHITE = -1;
+	public static final int BLACK = 1;
 	public static final int EMPTY = 0;
 
 	public static final int SIZE = 8;
@@ -46,7 +46,7 @@ public class Board {
 	public Board() {
 		fields = new int[SIZE * LINESIZE];
 		init();
-		movingColor = WHITE;
+		movingColor = BLACK;
 	}
 
 	public Board(Board brd) {
@@ -57,10 +57,10 @@ public class Board {
 	}
 
 	public void init() {
-		setField(3, 3, BLACK);
-		setField(4, 4, BLACK);
-		setField(3, 4, WHITE);
-		setField(4, 3, WHITE);
+		setField(3, 3, WHITE);
+		setField(4, 4, WHITE);
+		setField(3, 4, BLACK);
+		setField(4, 3, BLACK);
 	}
 
 	public void addModelChangeListener(ModelChangeListener listener) {

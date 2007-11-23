@@ -18,8 +18,11 @@ public class ReversiAITests extends TestCase {
 		brd.setPiece(3, 2, Board.BLACK);
 		brd.setPiece(2, 3, Board.WHITE);
 		ReversiAI ai = new ReversiAI(new Controller(brd, null));
-		Thread tr = ai.play(brd, Board.BLACK);
-		tr.join();
+		ai.setTime(10);
+		long time = System.currentTimeMillis();
+		ai.iterativeDeepening(brd, new Point(), Board.BLACK);
+		System.out.println("evaluated " + ai.getNoOfNodes() + " nodes in "
+				+ (System.currentTimeMillis() - time) + " ms");
 		System.out.println(brd);
 		System.out.println("done");
 	}
