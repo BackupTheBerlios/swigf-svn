@@ -10,12 +10,14 @@ import java.awt.Point;
 public class BoardMemory {
 
 	public static class BoardEvaluation {
-		public BoardEvaluation(int hashcode, int value, Point best) {
+		public BoardEvaluation(int hashcode, int value, Point best, int depth) {
 			this.value = value;
 			this.bestField = best;
 			this.hashcode = hashcode;
+			this.depth = depth;
 		}
 
+		public int depth;
 		public int hashcode;
 		public int value;
 		public Point bestField;
@@ -34,9 +36,9 @@ public class BoardMemory {
 		return hash % size;
 	}
 
-	public void put(Board brd, int value, Point best) {
+	public void put(Board brd, int color, int value, Point best, int depth) {
 		transpositionTable[hashToIndex(brd.hashCode())] = new BoardEvaluation(brd.hashCode(),
-				value, best);
+				value, best, depth);
 	}
 
 	public BoardEvaluation get(Board brd) {

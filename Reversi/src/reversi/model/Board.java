@@ -26,15 +26,20 @@ public class Board {
 	public static final int SIZE = 8;
 	private static final int LINESIZE = 2 * SIZE;
 
-	private static final int[] directions = new int[] { -1, 1, -LINESIZE, LINESIZE, -LINESIZE - 1,
+	public static final int[] directions = new int[] { -1, 1, -LINESIZE, LINESIZE, -LINESIZE - 1,
 			-LINESIZE + 1, LINESIZE - 1, LINESIZE + 1 };
 
 	private static final int[] fieldHashs;
+	private static final int[] colorHashs;
 	static {
 		Random rand = new Random(0);
 		fieldHashs = new int[SIZE * LINESIZE];
 		for (int i = 0; i < SIZE * LINESIZE; i++) {
 			fieldHashs[i] = rand.nextInt(Integer.MAX_VALUE);
+		}
+		colorHashs = new int[3];
+		for (int i = 0; i < colorHashs.length; i++) {
+			colorHashs[i] = rand.nextInt(Integer.MAX_VALUE);
 		}
 	}
 
@@ -140,7 +145,41 @@ public class Board {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * 
+	 * @param pt
+	 * @param col
+	 * @return Returns an array of integers denoting the number of pieces that can be turned in a
+	 *         direction. The directions are taken from the static field <code>directions</code>.
+	 */
+	public Turn createTurn(Point pt, int col) {
+		if (!isOutOfBounds(pt) && getField(pt) == EMPTY) {
+			int[] turnsPerDirection = new int[8];
+			int noOfTurnableLines = 0;
+			int fieldIndex = indexFromPt(pt.x, pt.y);
+			for (int i = 0; i < directions.length; i++) {
+				int dir = directions[i];
+				int count = 0;
+				// at least one direction has to be set by the opposite color ...
+				int index = fieldIndex + dir;
+				while (!isOutOfBounds(index) && getField(index) == -col) {
+					count++;
+					index += dir;
+				}
+				// and must be followed by one piece of our own color
+				if (!isOutOfBounds(index) && getField(index) == col && count > 0) {
+					turnsPerDirection[i] = count;
+					noOfTurnableLines++;
+				}
+			}
+			if (noOfTurnableLines > 0) {
+				return new Turn(pt, turnsPerDirection, col);
+			}
+		}
+		return null;
+	}
+
 	public int turnableFields(Point pt, int col) {
 		int count = 0;
 		// the field must free
@@ -161,7 +200,7 @@ public class Board {
 					count += linecount;
 				}
 			}
-		}		
+		}
 		return count;
 	}
 
@@ -176,6 +215,13 @@ public class Board {
 		return false;
 	}
 
+	/**
+	 * Sets a piece and turns all lines possible.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param col
+	 */
 	public void setPiece(int x, int y, int col) {
 		setField(x, y, col);
 		int fieldIndex = indexFromPt(x, y);
@@ -202,6 +248,28 @@ public class Board {
 
 	public void setPiece(Point pt, int col) {
 		setPiece(pt.x, pt.y, col);
+	}
+
+	public void playTurn(Turn turn) {
+		for (int i = 0; i < directions.length; i++) {
+			int fieldIndex = indexFromPt(turn.position);
+			for (int j = 0; j < turn.turns[i]; j++) {
+				fieldIndex += directions[i];
+				setField(fieldIndex, turn.color);
+			}
+		}
+		setField(turn.position.x, turn.position.y, turn.color);
+	}
+
+	public void undoTurn(Turn turn) {
+		for (int i = 0; i < directions.length; i++) {
+			int fieldIndex = indexFromPt(turn.position);
+			for (int j = 0; j < turn.turns[i]; j++) {
+				fieldIndex += directions[i];
+				setField(fieldIndex, -turn.color);
+			}
+		}
+		setField(turn.position.x, turn.position.y, 0);
 	}
 
 	public int count(int col) {
@@ -238,14 +306,14 @@ public class Board {
 
 	@Override
 	public int hashCode() {
-		return hashValue;
+		return hashValue ^ colorHashs[movingColor + 1];
 	}
 
 	public void save(String name) {
 		try {
 			BufferedOutputStream fo = new BufferedOutputStream(new FileOutputStream(name));
 			for (int i = 0; i < fields.length; i++) {
-				fo.write(fields[i]+2);
+				fo.write(fields[i] + 2);
 			}
 			fo.close();
 		}
@@ -259,7 +327,7 @@ public class Board {
 		try {
 			BufferedInputStream fi = new BufferedInputStream(new FileInputStream(name));
 			for (int i = 0; i < fields.length; i++) {
-				fields[i] = fi.read()-2;
+				fields[i] = fi.read() - 2;
 			}
 			fi.close();
 		}
@@ -267,9 +335,10 @@ public class Board {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Copy the given Board into this instance.
+	 * 
 	 * @param brd
 	 */
 	public void copy(Board brd) {

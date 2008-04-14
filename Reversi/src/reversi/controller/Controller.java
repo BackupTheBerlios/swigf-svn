@@ -25,6 +25,8 @@ public class Controller {
 		this.frame = frame;
 		player[0] = COMPUTER;
 		player[1] = HUMAN;
+//		player[0] = HUMAN;
+//		player[1] = COMPUTER;
 		reversiAI = new ReversiAI(this);
 	}
 

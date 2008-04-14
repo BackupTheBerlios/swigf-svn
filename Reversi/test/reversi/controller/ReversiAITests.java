@@ -23,6 +23,7 @@ public class ReversiAITests extends TestCase {
 		ai.iterativeDeepening(brd, new Point(), Board.BLACK);
 		System.out.println("evaluated " + ai.getNoOfNodes() + " nodes in "
 				+ (System.currentTimeMillis() - time) + " ms");
+		assertTrue("Should evaluate more than 30.000 nodes per second", ai.getNoOfNodes() > 300000);
 		System.out.println(brd);
 		System.out.println("done");
 	}

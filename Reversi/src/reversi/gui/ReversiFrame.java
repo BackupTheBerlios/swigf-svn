@@ -34,7 +34,7 @@ public class ReversiFrame extends JFrame {
 				System.exit(0);
 			}
 		});
-		setSize(500, 525);
+		setSize(300, 330);
 		setLayout(new BorderLayout());
 		brd = new Board();
 		controller = new Controller(brd, this);
