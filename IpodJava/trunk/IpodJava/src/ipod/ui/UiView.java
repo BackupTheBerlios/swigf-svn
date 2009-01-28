@@ -5,6 +5,25 @@
  */
 package ipod.ui;
 
-public class UiView extends UiResponder {
+import obc.CGRect;
+import obc.UIView;
 
+public class UiView extends UIView {
+	UiNavigationBar navbar;
+
+	public UiView(CGRect rect) {
+		initWithFrame$(rect);
+	}
+
+	/**
+	 * Adds a navigation bar with default height.
+	 * 
+	 * @param navbar
+	 * @param width
+	 */
+	public void addNavigationBar(UiNavigationBar navbar) {
+		this.navbar = navbar;
+		addSubview$(navbar);
+	}
+	
 }
