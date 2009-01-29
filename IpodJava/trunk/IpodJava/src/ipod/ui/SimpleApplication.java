@@ -13,7 +13,7 @@ import obc.UIWindow;
  * 
  * @author Axel
  */
-public abstract class SimpleUiApplication extends UIApplication {
+public abstract class SimpleApplication extends UIApplication {
 
 	private UIWindow window;
 

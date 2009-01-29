@@ -1,0 +1,9 @@
+- Application lifecycle
+- NavigationBar - ok
+- AlertSheets - partially ok
+- Table
+- Section Lists
+- Graphics
+- Preference Table
+- Picker
+- DatePicker
