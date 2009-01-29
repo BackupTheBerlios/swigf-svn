@@ -5,6 +5,7 @@
  */
 package ipod.ui;
 
+import static joc.Static.NO;
 import ipod.ui.events.ListSelectionEvent;
 import ipod.ui.events.ListSelectionListener;
 
@@ -43,13 +44,18 @@ public class TableView<T> extends UITable {
 	 * @param data
 	 */
 	public TableView(List<T> data) {
+		initWithFrame$(new CGRect(0, 0, 320, 400));
 		this.data = data;
 		cells = new ArrayList<UITableCell>(data.size());
 		for (Object element : data) {
 			UISimpleTableCell cell = new UISimpleTableCell();
+			cell.init();
 			cell.setTitle$(element.toString());
 			cells.add(cell);
 		}
+		setSeparatorStyle$(1);
+		setReusesTableCells$(Static.NO);
+		setDataSource$(this);
 	}
 
 	public void setDisclosureForAllElements(int style, boolean b) {
@@ -61,12 +67,11 @@ public class TableView<T> extends UITable {
 
 	@Override
 	public UITable initWithFrame$(CGRect rect) {
+		super.initWithFrame$(rect);
 		UITableColumn column = new UITableColumn();
-		column.initWithTitle$identifier$width$("Column", "column", rect.size.width);
+		column.initWithTitle$identifier$width$("Column", "column", 320);
 		addTableColumn$(column);
-		setDataSource$(this);
-		// TODO has to be done before adding the column?
-		return super.initWithFrame$(rect);
+		return this;
 	}
 
 	/**
@@ -81,12 +86,23 @@ public class TableView<T> extends UITable {
 	// TODO can these methods be private ?
 	@Message
 	public int numberOfRowsInTable$(UITable table) {
+		SimpleApplication.log("numberOfRowsInTable => "+data.size());
 		return data.size();
 	}
 
 	@Message
-	public UITableCell table$cellForRow$column$(UITable table, int row, int col) {
-		return cells.get(row);
+	public UITableCell table$cellForRow$column$(UITable table, int row, UITableColumn col) {
+		SimpleApplication.log("cellForRow");
+		//return cells.get(row);
+		UISimpleTableCell cell = new UISimpleTableCell();
+		cell.init();
+		cell.setTitle$("hello");
+		return cell;
+	}
+
+	@Message
+	public byte table$canSelectRow$(UITable table, int row) {
+		return NO;
 	}
 
 	@Message
@@ -96,4 +112,5 @@ public class TableView<T> extends UITable {
 					.get(selectedRow()), selectedRow()));
 		}
 	}
+
 }

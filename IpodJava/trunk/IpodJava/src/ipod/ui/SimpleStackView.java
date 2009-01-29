@@ -20,7 +20,7 @@ public class SimpleStackView extends UIView {
 
 	public SimpleStackView(CGRect rect) {
 		bounds = rect;
-		initWithFrame$(rect);
+		initWithFrame$(bounds);
 	}
 
 	/**
@@ -42,11 +42,11 @@ public class SimpleStackView extends UIView {
 	/**
 	 * Layouts the subviews.
 	 */
-	public void initSubviews() {
+	public void layout() {
 		float heightOfCenterView = bounds.size.height;
 		float offset = 0;
 		if (navigationBar != null) {
-			navigationBar.initWithFrame$(new CGRect(0, 0, bounds().size.width, UINavigationBar
+			navigationBar.setFrame$(new CGRect(0, 0, bounds.size.width, UINavigationBar
 					.$defaultSize().height));
 			if (navigationBar.barStyle() != NavigationBar.TRANSPARENT_STYLE) {
 				heightOfCenterView -= UINavigationBar.$defaultSize().height;
@@ -54,7 +54,7 @@ public class SimpleStackView extends UIView {
 			}
 		}
 		if (centerView != null) {
-			centerView.initWithFrame$(new CGRect(0, offset, bounds.size.width, heightOfCenterView));
+			centerView.setFrame$(new CGRect(0, offset, bounds.size.width, heightOfCenterView));
 		}
 	}
 

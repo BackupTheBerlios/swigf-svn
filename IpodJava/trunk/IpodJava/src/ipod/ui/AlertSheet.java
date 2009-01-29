@@ -41,6 +41,7 @@ public class AlertSheet extends UIAlertView {
 	 * @param style
 	 */
 	public AlertSheet(String title, String bodyText, int style) {
+		initWithFrame$(new CGRect(0, 240, 240, 240));
 		setAlertSheetStyle$(style);
 		setTitle$(title);
 		setBodyText$(bodyText);
@@ -53,10 +54,6 @@ public class AlertSheet extends UIAlertView {
 
 	public void addDestructiveButton(String label) {
 		setDestructiveButton$(addButtonWithTitle$(label));
-	}
-
-	public void show() {
-		initWithFrame$(new CGRect(0, 240, 320, 240));
 	}
 
 	/**

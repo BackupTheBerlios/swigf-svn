@@ -20,6 +20,7 @@ public class ToDo extends SimpleApplication {
 		SimpleStackView view = new SimpleStackView(getWindow().bounds());
 		// navigation bar
 		final NavigationBar navbar = new NavigationBar("ToDo Sample");
+		view.addNavigationBar(navbar);
 		navbar.pushNavItem("My Table");
 		navbar.setRightButton("+", NavigationBar.DEFAULT_BUTTON_STYLE);
 		navbar.addRightButtonActionListener(new ActionListener() {
@@ -27,7 +28,6 @@ public class ToDo extends SimpleApplication {
 				AlertSheet.showMessage("My Message", "You pressed the '+' button. Didn't you, little bastard?");
 			}
 		});
-		view.addNavigationBar(navbar);
 		// a table for contents
 		List<String> data = new ArrayList<String>();
 		for (int i=0; i<50; i++) {
@@ -42,6 +42,7 @@ public class ToDo extends SimpleApplication {
 		});
 		view.addCenterView(table);
 		// add view to window
+		view.layout();
 		addView(view);
 	}
 
