@@ -31,12 +31,15 @@ public class SimpleStackView extends UIView {
 	 */
 	public void addNavigationBar(NavigationBar navbar) {
 		this.navigationBar = navbar;
-		addSubview$(navigationBar);
 	}
 
 	public void addCenterView(UIView view) {
 		centerView = view;
-		addSubview$(centerView);
+	}
+	
+	public void addViewWithFrame(UIView view, CGRect frame) {
+		view.setFrame$(frame);
+		addSubview$(view);
 	}
 
 	/**
@@ -56,6 +59,8 @@ public class SimpleStackView extends UIView {
 		if (centerView != null) {
 			centerView.setFrame$(new CGRect(0, offset, bounds.size.width, heightOfCenterView));
 		}
+		addSubview$(centerView);
+		addSubview$(navigationBar);
 	}
 
 	// TODO check if normal bounds is not working

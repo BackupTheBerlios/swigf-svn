@@ -5,6 +5,7 @@
  */
 package ipod.ui;
 
+import ipod.base.Logger;
 import ipod.ui.events.ActionListener;
 import ipod.ui.events.Event;
 
@@ -74,13 +75,14 @@ public class AlertSheet extends UIAlertView {
 	}
 
 	public static void showMessage(String title, String message) {
-		final AlertSheet alertSheet = new AlertSheet(title, message, TRANSPARENT_STYLE);
+		final AlertSheet alertSheet = new AlertSheet(title, message, DEFAULT_STYLE);
 		alertSheet.addButton("Ok");
 		alertSheet.addActionListener(new ActionListener() {
 			public void actionPerformed(Event event) {
 				alertSheet.dismiss();
 			}
 		});
+		Logger.info("showMessage(): "+title+" : "+message);
 		alertSheet.show();
 	}
 }

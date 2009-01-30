@@ -1,7 +1,7 @@
 - Application lifecycle
 - NavigationBar - ok
 - AlertSheets - partially ok
-- Table
+- Table - partially ok
 - Section Lists
 - Graphics
 - Preference Table

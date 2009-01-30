@@ -5,7 +5,7 @@
  */
 package ipod.ui;
 
-import static joc.Static.NO;
+import ipod.base.Logger;
 import ipod.ui.events.ListSelectionEvent;
 import ipod.ui.events.ListSelectionListener;
 
@@ -16,6 +16,7 @@ import java.util.List;
 import joc.Message;
 import joc.Static;
 import obc.CGRect;
+import obc.NSCFArray;
 import obc.NSNotification;
 import obc.UISimpleTableCell;
 import obc.UITable;
@@ -43,8 +44,9 @@ public class TableView<T> extends UITable {
 	 * 
 	 * @param data
 	 */
-	public TableView(List<T> data) {
-		initWithFrame$(new CGRect(0, 0, 320, 400));
+	public TableView(List<T> data, int rowHeight) {
+		initWithFrame$(new CGRect(0, 0, 320, 479));
+		Logger.debug("New TableView with " + data.size() + " entries created");
 		this.data = data;
 		cells = new ArrayList<UITableCell>(data.size());
 		for (Object element : data) {
@@ -54,10 +56,17 @@ public class TableView<T> extends UITable {
 			cells.add(cell);
 		}
 		setSeparatorStyle$(1);
-		setReusesTableCells$(Static.NO);
+		// TODO setReusesTableCells$(Static.YES);
 		setDataSource$(this);
+		setDelegate$(this);
+		setRowHeight$(rowHeight);
+		reloadData();
 	}
 
+	public TableView(List<T> data) {
+		this(data, 32);
+	}
+	
 	public void setDisclosureForAllElements(int style, boolean b) {
 		for (UITableCell cell : cells) {
 			cell.setShowDisclosure$(b ? Static.YES : Static.NO);
@@ -73,7 +82,14 @@ public class TableView<T> extends UITable {
 		addTableColumn$(column);
 		return this;
 	}
-
+	
+	@Override
+	public void setFrame$(CGRect arg0) {
+		super.setFrame$(arg0);
+		Logger.debug(tableColumns());
+		NSCFArray array = (NSCFArray) tableColumns();
+	}
+	
 	/**
 	 * Adds a {@link ListSelectionListener} to the table.
 	 * 
@@ -86,23 +102,19 @@ public class TableView<T> extends UITable {
 	// TODO can these methods be private ?
 	@Message
 	public int numberOfRowsInTable$(UITable table) {
-		SimpleApplication.log("numberOfRowsInTable => "+data.size());
+		Logger.debug("numberOfRowsInTable => " + data.size());
 		return data.size();
 	}
 
 	@Message
 	public UITableCell table$cellForRow$column$(UITable table, int row, UITableColumn col) {
-		SimpleApplication.log("cellForRow");
-		//return cells.get(row);
-		UISimpleTableCell cell = new UISimpleTableCell();
-		cell.init();
-		cell.setTitle$("hello");
-		return cell;
+		Logger.debug("cellForRowColumn(" + row + "," + col.getIdentifier() + ")");
+		return cells.get(row);
 	}
 
 	@Message
 	public byte table$canSelectRow$(UITable table, int row) {
-		return NO;
+		return Static.YES;
 	}
 
 	@Message

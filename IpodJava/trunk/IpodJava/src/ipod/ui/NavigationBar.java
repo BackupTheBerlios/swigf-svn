@@ -1,5 +1,6 @@
 package ipod.ui;
 
+import ipod.base.Logger;
 import ipod.ui.events.ActionListener;
 import ipod.ui.events.Event;
 
@@ -63,6 +64,7 @@ public class NavigationBar extends UINavigationBar {
 
 	public NavigationBar(String title, int style) {
 		initWithFrame$(new CGRect(0, 0, 10, 10));
+		Logger.debug("New NavigationBar with title " + title + " and style " + style + " created");
 		setBarStyle$(style);
 		if (title != null) {
 			UINavigationItem navitem = new UINavigationItem().initWithTitle$(title);
@@ -79,7 +81,7 @@ public class NavigationBar extends UINavigationBar {
 	 */
 	public void pushNavItem(Object item) {
 		UINavigationItem navitem = new UINavigationItem().initWithTitle$(item.toString());
-		//navitem.addObject$toPropertyWithKey$(item, CONTENTS);
+		// navitem.addObject$toPropertyWithKey$(item, CONTENTS);
 		pushNavigationItem$(navitem);
 	}
 
@@ -119,7 +121,7 @@ public class NavigationBar extends UINavigationBar {
 			break;
 		// left
 		case 1:
-			Object source = null;//((UINavigationItem) backItem()).valueForKey$(CONTENTS);
+			Object source = null;// ((UINavigationItem) backItem()).valueForKey$(CONTENTS);
 			for (ActionListener listener : leftButtonListeners) {
 				listener.actionPerformed(new Event(source));
 			}

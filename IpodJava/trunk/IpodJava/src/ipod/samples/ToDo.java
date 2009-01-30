@@ -1,17 +1,20 @@
 package ipod.samples;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ipod.ui.AlertSheet;
-import ipod.ui.SimpleApplication;
 import ipod.ui.NavigationBar;
+import ipod.ui.SimpleApplication;
 import ipod.ui.SimpleStackView;
 import ipod.ui.TableView;
+import ipod.ui.TextField;
 import ipod.ui.events.ActionListener;
 import ipod.ui.events.Event;
 import ipod.ui.events.ListSelectionEvent;
 import ipod.ui.events.ListSelectionListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import obc.CGRect;
 
 public class ToDo extends SimpleApplication {
 
@@ -19,7 +22,7 @@ public class ToDo extends SimpleApplication {
 	public void applicationDidFinishLaunching() {
 		SimpleStackView view = new SimpleStackView(getWindow().bounds());
 		// navigation bar
-		final NavigationBar navbar = new NavigationBar("ToDo Sample");
+		final NavigationBar navbar = new NavigationBar("ToDo Sample", NavigationBar.TRANSPARENT_STYLE);
 		view.addNavigationBar(navbar);
 		navbar.pushNavItem("My Table");
 		navbar.setRightButton("+", NavigationBar.DEFAULT_BUTTON_STYLE);
@@ -43,6 +46,7 @@ public class ToDo extends SimpleApplication {
 		view.addCenterView(table);
 		// add view to window
 		view.layout();
+		view.addViewWithFrame(new TextField(18, "Label: ", "enter text here"), new CGRect(10, 100, 300, 24));
 		addView(view);
 	}
 
