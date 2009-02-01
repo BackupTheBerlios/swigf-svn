@@ -15,6 +15,7 @@ import java.util.List;
 import joc.Message;
 import obc.CGRect;
 import obc.UIAlertView;
+import obc.UIView;
 
 public class AlertSheet extends UIAlertView {
 
@@ -74,7 +75,7 @@ public class AlertSheet extends UIAlertView {
 		}
 	}
 
-	public static void showMessage(String title, String message) {
+	public static void showMessage(UIView view, String title, String message) {
 		final AlertSheet alertSheet = new AlertSheet(title, message, DEFAULT_STYLE);
 		alertSheet.addButton("Ok");
 		alertSheet.addActionListener(new ActionListener() {
@@ -83,6 +84,6 @@ public class AlertSheet extends UIAlertView {
 			}
 		});
 		Logger.info("showMessage(): "+title+" : "+message);
-		alertSheet.show();
+		alertSheet.presentSheetInView$(view);
 	}
 }
