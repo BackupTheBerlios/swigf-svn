@@ -57,6 +57,7 @@ public class ToDo extends SimpleApplication {
 		}
 
 		public void updateData(int row, int col, Object value) {
+			data.get(row).finished = (Boolean) value;
 		}
 
 	};

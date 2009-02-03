@@ -93,10 +93,10 @@ public class TableView extends UITable {
 		// TODO reusing
 		if (cellData instanceof Boolean) {
 			if (cell == null || !(cell instanceof CheckBoxTableCell)) {
-				cell = new CheckBoxTableCell((Boolean) cellData);
+				cell = new CheckBoxTableCell(model);
 				((CheckBoxTableCell) cell).init(new CGSize(model.getColumnWidth(col), rowHeight()-1));
 			}
-			((CheckBoxTableCell) cell).setContentValue((Boolean) cellData);
+			((CheckBoxTableCell) cell).updateWithCell(row, col);
 
 		}
 		else {
@@ -104,7 +104,6 @@ public class TableView extends UITable {
 				cell = new UISimpleTableCell();
 				cell.init();
 			}
-			Logger.debug("CellData "+row+","+col+": "+cellData+" cell: "+cell);
 			((UISimpleTableCell) cell).setTitle$(cellData.toString());
 		}
 		return cell;

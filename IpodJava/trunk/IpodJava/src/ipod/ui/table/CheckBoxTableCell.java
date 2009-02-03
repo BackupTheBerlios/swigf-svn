@@ -7,6 +7,8 @@ package ipod.ui.table;
 
 import ipod.base.Logger;
 import ipod.ui.ToggleButton;
+import ipod.ui.events.ActionListener;
+import ipod.ui.events.Event;
 import joc.Static;
 import obc.CGRect;
 import obc.CGSize;
@@ -15,11 +17,13 @@ import obc.UITableCell;
 
 public class CheckBoxTableCell extends UIImageAndTextTableCell {
 
-	ToggleButton toggle;
+	private ToggleButton toggle;
+	private TableModel tableModel;
+	private int row, col;
 
-	public CheckBoxTableCell(Boolean b) {
-		toggle = new ToggleButton(b);
-		
+	public CheckBoxTableCell(TableModel tableModel) {
+		toggle = new ToggleButton(false);
+		this.tableModel = tableModel;
 	}
 
 	public UITableCell init(CGSize cellSize) {
@@ -32,6 +36,12 @@ public class CheckBoxTableCell extends UIImageAndTextTableCell {
 		setFrame$(toggle.frame());
 		addSubview$(toggle);
 		setEnabled$(Static.YES);
+		toggle.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(Event event) {
+				tableModel.updateData(row, col, getContentValue());
+			}
+		});
 		return this;
 	}
 
@@ -40,8 +50,10 @@ public class CheckBoxTableCell extends UIImageAndTextTableCell {
 		return init(toggle.size());
 	}
 
-	public void setContentValue(Boolean value) {
-		toggle.setValue(value);
+	public void updateWithCell(int row, int col) {
+		this.row = row;
+		this.col = col;
+		toggle.setValue((Boolean) tableModel.getData(row, col));
 	}
 
 	public Boolean getContentValue() {

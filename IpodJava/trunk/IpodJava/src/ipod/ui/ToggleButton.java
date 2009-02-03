@@ -55,7 +55,7 @@ public class ToggleButton extends UIButton {
 	@Message
 	public void buttonClicked(Object sender) {
 		Logger.debug("ToggleButton clicked !!!");
-		toggle = new Boolean(!toggle);
+		toggle = Boolean.valueOf(!toggle);
 		setImage$forState$(toggle?checkedImage:uncheckedImage, 0);
 		for (ActionListener listener : listeners) {
 			listener.actionPerformed(new Event(this));
