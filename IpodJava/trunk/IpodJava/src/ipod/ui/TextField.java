@@ -6,6 +6,7 @@
 package ipod.ui;
 
 import joc.Static;
+import obc.CGSize;
 import obc.UIFont;
 import obc.UITextField;
 
@@ -20,13 +21,15 @@ public class TextField extends UITextField {
 	public static final int TA_CENTER = 1;
 	public static final int TA_RIGHT = 2;
 
-	public TextField(int fontSize, String label, String prefill) {
+	public TextField(String label, String prefill, CGSize size) {
 		init();
+		setSize$(size);
+		float fontSize = size.height-8;
 		UIFont font = new UIFont().initWithName$size$("Arial", fontSize);
 		setFont$(font);
 		setLabel$(label);
 		setText$(prefill);
-		setTextAlignment$(4);
+		setTextAlignment$(TA_LEFT);
 		setClearButtonMode$(3);
 		setBorderStyle$(BS_ROUNDED);
 		setClearsOnBeginEditing$(Static.YES);

@@ -17,9 +17,9 @@ import java.util.Map;
 import joc.Message;
 import joc.Static;
 import obc.CGRect;
+import obc.CGSize;
 import obc.NSNotification;
 import obc.UISimpleTableCell;
-import obc.UISwitch;
 import obc.UITable;
 import obc.UITableCell;
 import obc.UITableColumn;
@@ -92,20 +92,20 @@ public class TableView extends UITable {
 		UITableCell cell = reusing;
 		// TODO reusing
 		if (cellData instanceof Boolean) {
-			if (cell == null || cell instanceof UISimpleTableCell) {
-				cell = new UITableCell();
-				cell.init();
-				cell.addSubview$(new UISwitch().initWithFrame$(new CGRect(0, 0, 24, 24)));
-				// TODO set contents
+			if (cell == null || !(cell instanceof CheckBoxTableCell)) {
+				cell = new CheckBoxTableCell((Boolean) cellData);
+				((CheckBoxTableCell) cell).init(new CGSize(model.getColumnWidth(col), rowHeight()-1));
 			}
-			
-		} else {
+			((CheckBoxTableCell) cell).setContentValue((Boolean) cellData);
+
+		}
+		else {
 			if (cell == null || !(cell instanceof UISimpleTableCell)) {
 				cell = new UISimpleTableCell();
 				cell.init();
 			}
+			Logger.debug("CellData "+row+","+col+": "+cellData+" cell: "+cell);
 			((UISimpleTableCell) cell).setTitle$(cellData.toString());
-
 		}
 		return cell;
 	}
@@ -119,15 +119,15 @@ public class TableView extends UITable {
 	@Message
 	public UITableCell table$cellForRow$column$reusing$(UITable table, int row,
 			UITableColumn column, UITableCell reusing) {
-		Logger.debug("cellForRowColumn(" + row + "," + column.getIdentifier() + ")");
+//		Logger.debug("cellForRowColumn(" + row + "," + column.getIdentifier() + ")");
 		int col = columnToIndexMap.get(column.getIdentifier());
-		Logger.debug("Translates to cellForRowColumn(" + row + "," + col + ")");
+//		Logger.debug("Translates to cellForRowColumn(" + row + "," + col + ")");
 		return createDefaultCellRenderer(row, col, reusing);
 	}
 
 	@Message
 	public byte table$canSelectRow$(UITable table, int row) {
-		return Static.YES;
+		return Static.NO;
 	}
 
 	@Message
