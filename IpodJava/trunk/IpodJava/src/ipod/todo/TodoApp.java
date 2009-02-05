@@ -18,11 +18,13 @@ import java.util.GregorianCalendar;
 import joc.Message;
 import joc.Static;
 import obc.CGRect;
-import obc.UITableViewCell;
 
 public class TodoApp extends SimpleApplication {
 	@Override
 	public void applicationDidFinishLaunching() throws Exception {
+		// The window
+		final SimpleStackView view = new SimpleStackView(getWindow().bounds());
+
 		// Model
 		final ListModel<Todo> listModel = new ListModel<Todo>() {
 			@Override
@@ -53,19 +55,24 @@ public class TodoApp extends SimpleApplication {
 		table.setCellViewFactory(new TodoCellViewFactory(listModel));
 		table.setUserInteractionEnabled$(Static.YES);
 		table.setEnabledGestures$(Static.YES);
-		table.addListSelectionListener(new ListSelectionListener() {
+		table.addSelectionListener(new ListSelectionListener() {
 			public void selectItem(ListSelectionEvent event) {
-				Logger.debug("Edit row "+event.getListIndex());
+				Logger.debug("Edit row " + event.getListIndex());
 			}
 		});
+		table.addDeletionListener(new ListSelectionListener() {
+			public void selectItem(ListSelectionEvent event) {
+				Logger.debug("Delete row " + event.getListIndex());
+				listModel.removeItemAt(event.getListIndex());
+				table.reloadData();
+			}
+		});
+		view.addCenterView(table);
 
 		// Navigation bar
 		final NavigationBar navbar = new NavigationBar("Todo", NavigationBar.BW_STYLE);
-
-		// The window
-		final SimpleStackView view = new SimpleStackView(getWindow().bounds());
-		view.addNavigationBar(navbar);
-		navbar.setRightButton("+", NavigationBar.DEFAULT_BUTTON_STYLE);
+		navbar.setButtons("Löschen", NavigationBar.RED_BUTTON_STYLE, "+",
+				NavigationBar.DEFAULT_BUTTON_STYLE);
 		navbar.addRightButtonActionListener(new ActionListener() {
 			public void actionPerformed(Event event) {
 				AlertSheet.requestTextInput(view, "Neues Todo", null, "Neues Todo eingeben",
@@ -79,18 +86,27 @@ public class TodoApp extends SimpleApplication {
 											.getTime());
 									listModel.addItem(todo);
 									table.reloadData();
-								}
-								catch (Exception e) {
+								} catch (Exception e) {
 									Logger.error(e);
 								}
 							}
 						});
 			}
 		});
-		view.addCenterView(table);
-		Logger.debug("Added ListView");
+		navbar.addLeftButtonActionListener(new ActionListener() {
+			public void actionPerformed(Event event) {
+				if (table.isEditing() == Static.NO) {
+					table.setEditing$(Static.YES);
+					navbar.setLeftButtonLabel("Fertig", NavigationBar.BLUE_BUTTON_STYLE);
+				} else {
+					table.setEditing$(Static.NO);
+					navbar.setLeftButtonLabel("Löschen", NavigationBar.RED_BUTTON_STYLE);
+				}
+			}
+		});
+		view.addNavigationBar(navbar);
+		// building the window
 		view.layout();
-		Logger.debug("Layout");
 		addView(view);
 		Logger.debug("Show everything");
 	}

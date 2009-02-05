@@ -31,7 +31,8 @@ public class ListView<T extends ListModel<?>> extends UITableView implements Lay
 	public static final int BLUE_CIRCLE_DISCLOSURE_STYLE = 1;
 
 	private T model;
-	private List<ListSelectionListener> listeners = new LinkedList<ListSelectionListener>();
+	private List<ListSelectionListener> selectionListeners = new LinkedList<ListSelectionListener>();
+	private List<ListSelectionListener> deletionListeners = new LinkedList<ListSelectionListener>();
 	private CellFactory cellFactory = new CellFactory() {
 		public UITableViewCell createCell(String identifier) {
 			return new UITableViewCell().initWithFrame$reuseIdentifier$(ZERO_RECT, identifier);
@@ -61,9 +62,13 @@ public class ListView<T extends ListModel<?>> extends UITableView implements Lay
 	public void setCellViewFactory(CellFactory factory) {
 		cellFactory = factory;
 	}
+
+	public void addSelectionListener(ListSelectionListener listener) {
+		selectionListeners.add(listener);
+	}
 	
-	public void addListSelectionListener(ListSelectionListener listener) {
-		listeners.add(listener);
+	public void addDeletionListener(ListSelectionListener listener) {
+		deletionListeners.add(listener);
 	}
 
 	@Message
@@ -93,9 +98,20 @@ public class ListView<T extends ListModel<?>> extends UITableView implements Lay
 
 	@Message
 	public void tableView$didSelectRowAtIndexPath$(ListView<T> view, NSIndexPath indexPath) {
-		Logger.info("ListView selected " + indexPath.row());
-		for (ListSelectionListener listener : listeners) {
-			listener.selectItem(new ListSelectionEvent(cellForRowAtIndexPath$(indexPath), indexPath.row()));
+		Logger.info("ListView: row selected " + indexPath.row());
+		for (ListSelectionListener listener : selectionListeners) {
+			listener.selectItem(new ListSelectionEvent(cellForRowAtIndexPath$(indexPath), indexPath
+					.row()));
+		}
+	}
+
+	@Message
+	public void tableView$commitEditingStyle$forRowAtIndexPath$(ListView<T> view, int style,
+			NSIndexPath indexPath) {
+		Logger.info("ListView: row deleted");
+		for (ListSelectionListener listener: deletionListeners) {
+			listener.selectItem(new ListSelectionEvent(cellForRowAtIndexPath$(indexPath), indexPath
+					.row()));
 		}
 	}
 }

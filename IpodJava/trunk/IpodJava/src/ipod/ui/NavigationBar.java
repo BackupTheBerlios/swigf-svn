@@ -29,8 +29,6 @@ import obc.UINavigationItem;
  */
 public class NavigationBar extends UINavigationBar {
 
-	private static final String CONTENTS = "contents";
-
 	/**
 	 * style: gray gradient background with text.
 	 */
@@ -50,9 +48,17 @@ public class NavigationBar extends UINavigationBar {
 	 * Just a plain gray button.
 	 */
 	public static final int DEFAULT_BUTTON_STYLE = 0;
+	public static final int RED_BUTTON_STYLE = 3;
+	public static final int ARROW_BUTTON_STYLE = 1;
+	// not tested
+	public static final int BLUE_BUTTON_STYLE = 2;
 
 	private List<ActionListener> leftButtonListeners = new LinkedList<ActionListener>();
 	private List<ActionListener> rightButtonListeners = new LinkedList<ActionListener>();
+	private String leftButtonLabel;
+	private String rightButtonLabel;
+	private int leftButtonStyle;
+	private int rightButtonStyle;
 
 	public NavigationBar() {
 		this(null, DEFAULT_STYLE);
@@ -93,13 +99,30 @@ public class NavigationBar extends UINavigationBar {
 	}
 
 	/**
-	 * Sets a button on the right side of the navigation bar.
+	 * * Sets buttons left and right of the title in the navigation bar.
 	 * 
-	 * @param label
-	 * @param buttonStyle
+	 * @param leftlabel
+	 * @param lbuttonStyle
+	 * @param rightlabel
+	 * @param rbuttonStyle
 	 */
-	public void setRightButton(String label, int buttonStyle) {
-		showLeftButton$withStyle$rightButton$withStyle$(null, 0, label, buttonStyle);
+	public void setButtons(String leftlabel, int lbuttonStyle, String rightlabel, int rbuttonStyle) {
+		leftButtonLabel = leftlabel;
+		leftButtonStyle = lbuttonStyle;
+		rightButtonLabel = rightlabel;
+		rightButtonStyle = rbuttonStyle;
+		showLeftButton$withStyle$rightButton$withStyle$(leftlabel, lbuttonStyle, rightlabel,
+				rbuttonStyle);
+	}
+
+	public void setLeftButtonLabel(String label, int style) {
+		showLeftButton$withStyle$rightButton$withStyle$(label, style, rightButtonLabel,
+				rightButtonStyle);
+	}
+
+	public void setRightButtonLabel(String label, int style) {
+		showLeftButton$withStyle$rightButton$withStyle$(leftButtonLabel, leftButtonStyle, label,
+				style);
 	}
 
 	public void addLeftButtonActionListener(ActionListener actionListener) {
