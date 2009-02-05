@@ -86,7 +86,7 @@ public class AlertSheet extends UIAlertView {
 	 * @param message
 	 */
 	public static void showMessage(UIView view, String title, String message) {
-		final AlertSheet alertSheet = new AlertSheet(title, BW_STYLE);
+		final AlertSheet alertSheet = new AlertSheet(title, BORDER_STLE);
 		alertSheet.setBodyText$(message);
 		alertSheet.addButton("Ok");
 		alertSheet.addActionListener(new ActionListener() {
@@ -108,25 +108,29 @@ public class AlertSheet extends UIAlertView {
 	 * @param successAction This ActionListener will be called in case ok is pressed. The given
 	 *            event contains the entered string.
 	 */
-	public static void confirmUserRequest(UIView view, String title, String body,
+	public static void requestTextInput(UIView view, String title, String body,
 			String inputlabel, final ActionListener successAction) {
 		final AlertSheet alertSheet = new AlertSheet(title, BORDER_STLE);
 		alertSheet.addButton("Ok");
 		alertSheet.addButton("Cancel");
-		alertSheet.setBodyText$("Body ???");
+		alertSheet.setBodyText$(body);
 		alertSheet.addTextFieldWithValue$label$("", inputlabel);
 		((UITextField) alertSheet.textField()).setClearButtonMode$(3);
 		alertSheet.addActionListener(new ActionListener() {
 			public void actionPerformed(Event event) {
-				Logger.debug("Action caught on AlertSheet:" + event.getSource());
+				String inputText = ((UITextField) alertSheet.textField())
+				.text().toString();
 				if (((Integer) event.getSource()).intValue() == 1) {
-					successAction.actionPerformed(new Event(((UITextField) alertSheet.textField())
-							.text().toString()));
+					Logger.info("requestTextInput() confirmed with:" + inputText);
+					successAction.actionPerformed(new Event(inputText));
+				}
+				else {
+					Logger.info("requestTextInput() cancelled");
 				}
 				alertSheet.dismiss();
 			}
 		});
-		Logger.info("confirmUserRequest(): " + title);
+		Logger.info("requestTextInput(): " + title + " : "+body);
 		// alertSheet.presentSheetFromAboveView$(view);
 		alertSheet.show();
 	}

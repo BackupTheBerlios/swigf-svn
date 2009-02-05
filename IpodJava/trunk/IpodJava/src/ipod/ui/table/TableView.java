@@ -71,13 +71,7 @@ public class TableView extends UITable {
 		}
 		return this;
 	}
-
-	@Override
-	public void setFrame$(CGRect arg0) {
-		super.setFrame$(arg0);
-		Logger.debug(tableColumns());
-	}
-
+	
 	/**
 	 * Adds a {@link ListSelectionListener} to the table.
 	 * 
@@ -94,7 +88,8 @@ public class TableView extends UITable {
 		if (cellData instanceof Boolean) {
 			if (cell == null || !(cell instanceof CheckBoxTableCell)) {
 				cell = new CheckBoxTableCell(model);
-				((CheckBoxTableCell) cell).init(new CGSize(model.getColumnWidth(col), rowHeight()-1));
+				((CheckBoxTableCell) cell).init(new CGSize(model.getColumnWidth(col),
+						rowHeight() - 1));
 			}
 			((CheckBoxTableCell) cell).updateWithCell(row, col);
 
@@ -108,7 +103,7 @@ public class TableView extends UITable {
 		}
 		return cell;
 	}
-
+	
 	// TODO can these methods be private ?
 	@Message
 	public int numberOfRowsInTable$(UITable table) {
@@ -118,24 +113,42 @@ public class TableView extends UITable {
 	@Message
 	public UITableCell table$cellForRow$column$reusing$(UITable table, int row,
 			UITableColumn column, UITableCell reusing) {
-//		Logger.debug("cellForRowColumn(" + row + "," + column.getIdentifier() + ")");
+		// Logger.debug("cellForRowColumn(" + row + "," + column.getIdentifier() + ")");
 		int col = columnToIndexMap.get(column.getIdentifier());
-//		Logger.debug("Translates to cellForRowColumn(" + row + "," + col + ")");
+		// Logger.debug("Translates to cellForRowColumn(" + row + "," + col + ")");
 		return createDefaultCellRenderer(row, col, reusing);
 	}
 
 	@Message
 	public byte table$canSelectRow$(UITable table, int row) {
-		return Static.NO;
+		return Static.YES;
 	}
 
 	@Message
 	public void tableRowSelected$(NSNotification notification) {
 		for (ListSelectionListener listener : listeners) {
 			// TODO calculate column from tap position (notification?)
-			listener.selectItem(new ListSelectionEvent(null, model.getData(selectedRow(), 0),
-					selectedRow()));
+			listener.selectItem(new ListSelectionEvent(this, selectedRow()));
 		}
 	}
+	
+	@Message
+	public void _willDeleteRow$forTableCell$viaEdge$animateOthers$(int row, Object arg1, int arg2,
+			byte arg3) {
+		Logger.debug("TableView.willDeleteRow: "+row);
+		super._willDeleteRow$forTableCell$viaEdge$animateOthers$(row, arg1, arg2, arg3);
+		model.updateData(row, -1, null);
+	}
+
+	// @Message
+	// public int swipe$withEvent$(int type, Pointer<__GSEvent> eventPtr) {
+	// __GSEvent event = new __GSEvent();
+	// event.unbox(eventPtr);
+	// for (Object obj : event.getFields()) {
+	// Logger.debug("swipe event" + obj);
+	// }
+	//
+	// return super.swipe$withEvent$(type, eventPtr);
+	// }
 
 }

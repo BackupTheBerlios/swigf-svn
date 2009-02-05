@@ -28,9 +28,9 @@ public class ToggleButton extends UIButton {
 		checkedImage = (UIImage) UIImage.$applicationImageNamed$("Checkbox_checked.png");
 	}
 	
-	public ToggleButton(Boolean toggle) {
+	public ToggleButton(boolean init) {
 		init();
-		this.toggle = toggle;
+		this.toggle = Boolean.valueOf(init);
 		Logger.info("New ToggleButton created with image "+uncheckedImage.size().width);
 		setImage$forState$(toggle?checkedImage:uncheckedImage, 0);
 		addTarget$action$forEvents$(this, new Selector("buttonClicked"), kUIControlEventMouseDown);
@@ -38,7 +38,11 @@ public class ToggleButton extends UIButton {
 		setEnabled$(Static.YES);
 		setSize$(checkedImage.size());
 	}
-	
+
+	public ToggleButton() {
+		this(false);
+	}
+
 	public void setValue(Boolean value) {
 		toggle = value;
 		setImage$forState$(toggle?checkedImage:uncheckedImage, 0);	

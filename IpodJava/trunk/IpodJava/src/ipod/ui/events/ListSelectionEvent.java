@@ -7,19 +7,14 @@ package ipod.ui.events;
 
 public class ListSelectionEvent extends Event {
 	private int listIndex;
-	private Object item;
-	
-	public ListSelectionEvent(Object source, Object item, int listIndex) {
+
+	public ListSelectionEvent(Object source, int listIndex) {
 		super(source);
 		this.listIndex = listIndex;
-		this.item = item;
 	}
 
 	public int getListIndex() {
 		return listIndex;
 	}
-	
-	public Object getItem() {
-		return item;
-	}
+
 }

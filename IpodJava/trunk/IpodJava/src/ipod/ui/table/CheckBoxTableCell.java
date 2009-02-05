@@ -37,7 +37,7 @@ public class CheckBoxTableCell extends UIImageAndTextTableCell {
 		addSubview$(toggle);
 		setEnabled$(Static.YES);
 		toggle.addActionListener(new ActionListener() {
-			@Override
+//			@Override
 			public void actionPerformed(Event event) {
 				tableModel.updateData(row, col, getContentValue());
 			}

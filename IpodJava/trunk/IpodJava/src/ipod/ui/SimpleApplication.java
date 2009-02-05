@@ -46,7 +46,8 @@ public abstract class SimpleApplication extends UIApplication {
 	
 	/**
 	 * Callback for the application after launch. Create a content view for the applications main window here.
+	 * @throws Throwable 
 	 */
-	public abstract void applicationDidFinishLaunching();
+	public abstract void applicationDidFinishLaunching() throws Throwable;
 
 }
