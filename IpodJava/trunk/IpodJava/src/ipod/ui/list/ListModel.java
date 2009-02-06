@@ -5,36 +5,81 @@
  */
 package ipod.ui.list;
 
+import ipod.ui.events.ActionListener;
+import ipod.ui.events.Event;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class ListModel<T extends Sectionable> {
-	List<T> data = new ArrayList<T>();
+	private class Section {
+		String name;
+		List<T> sectiondata = new ArrayList<T>();
 
-	
+		public Section(String name) {
+			this.name = name;
+		}
+	}
+
+	List<Section> sections = new ArrayList<Section>();
+	List<ActionListener> listeners = new LinkedList<ActionListener>();
+
 	public abstract void addItem(T item);
-	public abstract T removeItemAt(int index);
-	public abstract void updateItemAt(int index, T newItem);
+
+	public abstract T removeItemAt(int section, int index);
+
+	public abstract void updateItemAt(int section, int index, T newItem);
+
+	public void addUpdateListener(ActionListener listener) {
+		listeners.add(listener);
+	}
+
+	public void fireUpdate() {
+		for (ActionListener listener : listeners) {
+			listener.actionPerformed(new Event(ListModel.this));
+		}
+	}
+
+	public int getSectionCount() {
+		return sections.size();
+	}
+
+	public int getCountForSection(int section) {
+		return sections.get(section).sectiondata.size();
+	}
 	
-	
-	public int getCountForSection(int rowsInSection) {
-		return  data.size();
+	public String getSectionHeader(int section) {
+		return sections.get(section).name;
 	}
 
 	public void clear() {
-		data.clear();
+		sections.clear();
 	}
-	
 
-	public T get(int row) {
-		return data.get(row);
+	public T get(int section, int row) {
+		return sections.get(section).sectiondata.get(row);
 	}
-	
+
+	private Section indexOfSection(String sectionName) {
+		for (Section section : sections) {
+			if (section.name.equals(sectionName)) {
+				return section;
+			}
+		}
+		return null;
+	}
+
 	public void addSilently(T item) {
-		data.add(item);
+		Section section = indexOfSection(item.getSectionName());
+		if (section == null) {
+			section = new Section(item.getSectionName());
+			sections.add(section);
+		}
+		section.sectiondata.add(item);
 	}
-	
-	public T removeSilently(int row) {
-		return data.remove(row);
+
+	public T removeSilently(int section, int row) {
+		return sections.get(section).sectiondata.remove(row);
 	}
 }

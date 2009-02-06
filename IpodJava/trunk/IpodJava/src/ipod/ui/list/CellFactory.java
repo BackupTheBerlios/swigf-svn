@@ -9,5 +9,5 @@ import obc.UITableViewCell;
 
 public interface CellFactory {
 	public UITableViewCell createCell(String identifier);
-	public void fillCellWithData(UITableViewCell cell, int row);
+	public void fillCellWithData(UITableViewCell cell, int section, int row);
 }

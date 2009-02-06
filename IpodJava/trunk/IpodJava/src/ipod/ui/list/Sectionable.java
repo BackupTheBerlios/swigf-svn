@@ -6,5 +6,5 @@
 package ipod.ui.list;
 
 public interface Sectionable {
-
+	public String getSectionName();
 }

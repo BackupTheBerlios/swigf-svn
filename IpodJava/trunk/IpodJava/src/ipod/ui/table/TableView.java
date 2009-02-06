@@ -128,7 +128,7 @@ public class TableView extends UITable {
 	public void tableRowSelected$(NSNotification notification) {
 		for (ListSelectionListener listener : listeners) {
 			// TODO calculate column from tap position (notification?)
-			listener.selectItem(new ListSelectionEvent(this, selectedRow()));
+			listener.selectItem(new ListSelectionEvent(this, selectedRow(), 0));
 		}
 	}
 	

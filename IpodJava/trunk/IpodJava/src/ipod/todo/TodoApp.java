@@ -25,25 +25,32 @@ public class TodoApp extends SimpleApplication {
 		// The window
 		final SimpleStackView view = new SimpleStackView(getWindow().bounds());
 
+		// TODO These methods of the model should be implemented in the model. Binding to DAO could
+		// be achieved by Events.
 		// Model
 		final ListModel<Todo> listModel = new ListModel<Todo>() {
 			@Override
 			public void addItem(Todo item) {
 				addSilently(item);
 				TodoDao.getInstance().createTodo(item);
+				fireUpdate();
 			}
 
 			@Override
-			public Todo removeItemAt(int row) {
-				Todo todo = get(row);
-				removeSilently(row);
+			public Todo removeItemAt(int section, int row) {
+				Todo todo = get(section, row);
+				removeSilently(section, row);
 				TodoDao.getInstance().remove(todo);
+				fireUpdate();
 				return todo;
 			}
 
 			@Override
-			public void updateItemAt(int row, Todo newItem) {
+			public void updateItemAt(int section, int row, Todo newItem) {
 				TodoDao.getInstance().update(newItem);
+				removeSilently(section, row);
+				addSilently(newItem);
+				fireUpdate();
 			}
 		};
 		// load contents for table model
@@ -52,7 +59,7 @@ public class TodoApp extends SimpleApplication {
 		// Table
 		final ListView<ListModel<Todo>> table = new ListView<ListModel<Todo>>(listModel, 40);
 		table.initWithFrame$(new CGRect(0, 0, 320, 480));
-		table.setCellViewFactory(new TodoCellViewFactory(listModel));
+		table.setCellViewFactory(new TodoCellViewFactory(listModel, 40));
 		table.setUserInteractionEnabled$(Static.YES);
 		table.setEnabledGestures$(Static.YES);
 		table.addSelectionListener(new ListSelectionListener() {
@@ -63,7 +70,13 @@ public class TodoApp extends SimpleApplication {
 		table.addDeletionListener(new ListSelectionListener() {
 			public void selectItem(ListSelectionEvent event) {
 				Logger.debug("Delete row " + event.getListIndex());
-				listModel.removeItemAt(event.getListIndex());
+				listModel.removeItemAt(event.getSectionIndex(), event.getListIndex());
+				table.reloadData();
+			}
+		});
+		listModel.addUpdateListener(new ActionListener() {
+			public void actionPerformed(Event event) {
+				Logger.debug("Table updated");
 				table.reloadData();
 			}
 		});
@@ -86,7 +99,8 @@ public class TodoApp extends SimpleApplication {
 											.getTime());
 									listModel.addItem(todo);
 									table.reloadData();
-								} catch (Exception e) {
+								}
+								catch (Exception e) {
 									Logger.error(e);
 								}
 							}
@@ -98,7 +112,8 @@ public class TodoApp extends SimpleApplication {
 				if (table.isEditing() == Static.NO) {
 					table.setEditing$(Static.YES);
 					navbar.setLeftButtonLabel("Fertig", NavigationBar.BLUE_BUTTON_STYLE);
-				} else {
+				}
+				else {
 					table.setEditing$(Static.NO);
 					navbar.setLeftButtonLabel("Löschen", NavigationBar.RED_BUTTON_STYLE);
 				}

@@ -12,7 +12,8 @@ public class Sequence {
 	}
 
 	public static int next() {
-		return ++sequenceid;
+		sequenceid++;
+		return sequenceid;
 	}
 
 	public static void initMax(int id) {

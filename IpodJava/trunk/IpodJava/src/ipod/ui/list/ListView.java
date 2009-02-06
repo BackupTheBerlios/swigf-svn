@@ -38,8 +38,8 @@ public class ListView<T extends ListModel<?>> extends UITableView implements Lay
 			return new UITableViewCell().initWithFrame$reuseIdentifier$(ZERO_RECT, identifier);
 		}
 
-		public void fillCellWithData(UITableViewCell cell, int row) {
-			cell.setText$(model.get(row));
+		public void fillCellWithData(UITableViewCell cell, int section, int row) {
+			cell.setText$(model.get(section, row));
 		}
 	};
 
@@ -66,27 +66,34 @@ public class ListView<T extends ListModel<?>> extends UITableView implements Lay
 	public void addSelectionListener(ListSelectionListener listener) {
 		selectionListeners.add(listener);
 	}
-	
+
 	public void addDeletionListener(ListSelectionListener listener) {
 		deletionListeners.add(listener);
+	}
+	
+	@Message
+	public int numberOfSectionsInTableView$(ListView<T> view) {
+		return model.getSectionCount();
+	}
+	
+	@Message
+	public String tableView$titleForHeaderInSection$(ListView<T> view, int section) {
+		return model.getSectionHeader(section);
 	}
 
 	@Message
 	public int tableView$numberOfRowsInSection$(ListView<T> view, int section) {
-		Logger.debug("Message: tableView$numberOfRowsInSection$ " + section + " = "
-				+ model.getCountForSection(section));
 		return model.getCountForSection(section);
 	}
 
 	@Message
 	public UITableViewCell tableView$cellForRowAtIndexPath$(ListView<T> view, NSIndexPath indexPath) {
-		Logger.debug("Message: tableView$cellForRowAtIndexPath " + indexPath.row());
 		String identifier = this.toString();
 		UITableViewCell cell = (UITableViewCell) dequeueReusableCellWithIdentifier$(identifier);
 		if (cell == null) {
 			cell = cellFactory.createCell(identifier);
 		}
-		cellFactory.fillCellWithData(cell, indexPath.row());
+		cellFactory.fillCellWithData(cell, indexPath.section(), indexPath.row());
 		return cell;
 	}
 
@@ -98,10 +105,11 @@ public class ListView<T extends ListModel<?>> extends UITableView implements Lay
 
 	@Message
 	public void tableView$didSelectRowAtIndexPath$(ListView<T> view, NSIndexPath indexPath) {
-		Logger.info("ListView: row selected " + indexPath.row());
+		Logger.info("ListView: selected section " + indexPath.section() + ", row "
+				+ indexPath.row());
 		for (ListSelectionListener listener : selectionListeners) {
 			listener.selectItem(new ListSelectionEvent(cellForRowAtIndexPath$(indexPath), indexPath
-					.row()));
+					.row(), indexPath.section()));
 		}
 	}
 
@@ -109,9 +117,14 @@ public class ListView<T extends ListModel<?>> extends UITableView implements Lay
 	public void tableView$commitEditingStyle$forRowAtIndexPath$(ListView<T> view, int style,
 			NSIndexPath indexPath) {
 		Logger.info("ListView: row deleted");
-		for (ListSelectionListener listener: deletionListeners) {
+		for (ListSelectionListener listener : deletionListeners) {
 			listener.selectItem(new ListSelectionEvent(cellForRowAtIndexPath$(indexPath), indexPath
-					.row()));
+					.row(), indexPath.section()));
 		}
+	}
+	
+	@Message
+	public int tableView$accessoryTypeForRowWithIndexPath$(ListView<T> view, NSIndexPath indexPath) {
+		return 1;
 	}
 }

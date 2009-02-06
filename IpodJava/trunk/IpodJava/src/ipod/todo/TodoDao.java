@@ -27,7 +27,7 @@ public class TodoDao {
 	}
 
 	public void createTodo(Todo todo) {
-		Logger.info("TodoDao.creatTodo() with id" + todo.id);
+		Logger.info("TodoDao.creatTodo() with id " + todo.id);
 		try {
 			openDB();
 			db.exec("insert into Task values(" + todo.id + ",'" + todo.title + "','"
@@ -78,6 +78,7 @@ public class TodoDao {
 		Logger.info("TodoDao.loadTodos()");
 		try {
 			openDB();
+			db.exec("update Task set due_date='2009-02-06' where rowid=11", null);
 			SQLite.Stmt stmt = db.prepare("select * from Task");
 			// SQLite.Stmt stmt =
 			// db.prepare("select name, sql from sqlite_master where type = 'table'");
@@ -96,10 +97,9 @@ public class TodoDao {
 					Logger.error("Table entry:  " + columns);
 					Logger.error(e);
 				}
+				int id = Integer.parseInt(stmt.column_string(0));
 				Todo todo = new Todo(stmt.column_string(1), stmt.column_int(2), Todo.YYYYMMDD
-						.parse(stmt.column_string(3)), completed);
-				todo.id = Integer.parseInt(stmt.column_string(0));
-				Sequence.initMax(todo.id);
+						.parse(stmt.column_string(3)), completed, id);
 				Logger.debug("TodoDao.loadTodos() read: " + todo);
 				model.addSilently(todo);
 			}
