@@ -13,6 +13,7 @@ import ipod.ui.list.ListModel;
 import ipod.ui.list.ListView;
 
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 
 import joc.Message;
@@ -53,6 +54,21 @@ public class TodoApp extends SimpleApplication {
 				fireUpdate();
 			}
 		};
+		listModel.setComparator(new Comparator<Todo>() {
+			public int compare(Todo o1, Todo o2) {
+				int priorityComparison = o1.priority - o2.priority;
+				if (priorityComparison != 0) {
+					return priorityComparison;
+				}
+				if (o1.completed != null && o2.completed != null) {
+					int completeComparison = o2.completed.compareTo(o1.completed);
+					if (completeComparison != 0) {
+						return completeComparison;
+					}
+				}
+				return o1.duedate.compareTo(o2.duedate);
+			}
+		});
 		// load contents for table model
 		TodoDao.getInstance().loadTodos(listModel);
 
@@ -65,6 +81,8 @@ public class TodoApp extends SimpleApplication {
 		table.addSelectionListener(new ListSelectionListener() {
 			public void selectItem(ListSelectionEvent event) {
 				Logger.debug("Edit row " + event.getListIndex());
+				//TodoPrefTable prefs = new TodoPrefTable();
+				//view.addSubview$(prefs);
 			}
 		});
 		table.addDeletionListener(new ListSelectionListener() {
@@ -77,6 +95,7 @@ public class TodoApp extends SimpleApplication {
 		listModel.addUpdateListener(new ActionListener() {
 			public void actionPerformed(Event event) {
 				Logger.debug("Table updated");
+				listModel.sort();
 				table.reloadData();
 			}
 		});

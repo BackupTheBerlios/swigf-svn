@@ -5,7 +5,6 @@
  */
 package ipod.todo;
 
-import ipod.base.Logger;
 import ipod.ui.ToggleButton;
 import ipod.ui.events.ActionListener;
 import ipod.ui.events.Event;
@@ -83,7 +82,6 @@ public class TodoCellViewFactory implements CellFactory {
 			}
 			dateLabel.setText$(dateLabelText);
 			titleLabel.setText$(todo.title);
-			Logger.debug("Textwidth for cell: " + titleLabel.textSize().width);
 			// setEditing$(Static.YES);
 			// setShowingDeleteConfirmation$(Static.YES);
 			this.row = row;

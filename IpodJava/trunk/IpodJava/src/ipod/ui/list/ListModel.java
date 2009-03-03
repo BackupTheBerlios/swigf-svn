@@ -9,6 +9,8 @@ import ipod.ui.events.ActionListener;
 import ipod.ui.events.Event;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,6 +26,7 @@ public abstract class ListModel<T extends Sectionable> {
 
 	List<Section> sections = new ArrayList<Section>();
 	List<ActionListener> listeners = new LinkedList<ActionListener>();
+	Comparator<T> comparator;
 
 	public abstract void addItem(T item);
 
@@ -35,6 +38,10 @@ public abstract class ListModel<T extends Sectionable> {
 		listeners.add(listener);
 	}
 
+	public void setComparator(Comparator<T> comparator) {
+		this.comparator = comparator;
+	}
+	
 	public void fireUpdate() {
 		for (ActionListener listener : listeners) {
 			listener.actionPerformed(new Event(ListModel.this));
@@ -68,6 +75,12 @@ public abstract class ListModel<T extends Sectionable> {
 			}
 		}
 		return null;
+	}
+	
+	public void sort() {
+		for (Section section: sections) {
+			Collections.sort(section.sectiondata, comparator);
+		}
 	}
 
 	public void addSilently(T item) {

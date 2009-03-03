@@ -102,6 +102,7 @@ public class TodoDao {
 						.parse(stmt.column_string(3)), completed, id);
 				Logger.debug("TodoDao.loadTodos() read: " + todo);
 				model.addSilently(todo);
+				model.sort();
 			}
 		}
 		catch (Throwable e) {
