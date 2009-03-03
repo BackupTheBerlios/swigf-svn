@@ -6,8 +6,11 @@
 package ipod.upnpcontrol;
 
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.SocketAddress;
 
 public class Communication {
 
@@ -18,12 +21,12 @@ public class Communication {
 	private static class SsdpBroadcast implements Runnable {
 		public void run() {
 			try {
-				MulticastSocket udpSocket = new MulticastSocket(4711);
+				MulticastSocket udpSocket = new MulticastSocket(new InetSocketAddress(4711));
 				InetAddress group = InetAddress.getByName("239.255.255.250");
 				byte[] data = SSDP.getBytes("utf-8");
 				udpSocket.joinGroup(group);
 				DatagramPacket packet = new DatagramPacket(data, data.length, group, 1900);
-				for (int i = 0; i < 10; i++) {
+				for (int i = 0; i < 3; i++) {
 					System.out.println("sending broadcast from port " + udpSocket.getLocalPort()
 							+ " ...");
 					udpSocket.send(packet);
@@ -40,12 +43,12 @@ public class Communication {
 
 	private static void receiveBroadCast() {
 		try {
-			InetAddress group = InetAddress.getByName("239.255.255.250");
-			MulticastSocket udpSocket = new MulticastSocket(1900);
-			udpSocket.joinGroup(group);
-			//DatagramSocket udpSocket = new DatagramSocket(4711);
+//			InetAddress group = InetAddress.getByName("239.255.255.250");
+//			MulticastSocket udpSocket = new MulticastSocket(1900);
+//			udpSocket.joinGroup(group);
+			DatagramSocket udpSocket = new DatagramSocket(null);
+			udpSocket.bind(new InetSocketAddress("192.168.0.3", 4711));
 			new Thread(new SsdpBroadcast()).start();
-			Thread.sleep(1000);
 			while (true) {
 				DatagramPacket reply = new DatagramPacket(new byte[1024], 1024);
 				System.out.println("waiting for reply to " + udpSocket.getLocalSocketAddress()
