@@ -56,6 +56,12 @@ public class TodoApp extends SimpleApplication {
 		};
 		listModel.setComparator(new Comparator<Todo>() {
 			public int compare(Todo o1, Todo o2) {
+				if (o1.completed!=null && o2.completed==null) {
+					return 1;
+				}
+				if (o2.completed!=null && o1.completed==null) {
+					return -1;
+				}
 				int priorityComparison = o1.priority - o2.priority;
 				if (priorityComparison != 0) {
 					return priorityComparison;

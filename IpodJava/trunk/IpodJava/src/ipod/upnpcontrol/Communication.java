@@ -10,10 +10,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.SocketAddress;
 
 public class Communication {
 
+	private static String address = "192.168.1.4";
+	
 	private static String SSDP = "M-SEARCH * HTTP/1.1\r\n" + "HOST: 239.255.255.250:1900\r\n"
 			+ "MAN: \"ssdp:discover\"\r\n" + "MX: 5\r\n"
 			+ "ST: urn:schemas-upnp-org:device:MediaServer:1\r\n\r\n";
@@ -21,14 +22,14 @@ public class Communication {
 	private static class SsdpBroadcast implements Runnable {
 		public void run() {
 			try {
-				MulticastSocket udpSocket = new MulticastSocket(new InetSocketAddress(4711));
+				MulticastSocket udpSocket = new MulticastSocket(new InetSocketAddress(address, 4711));
 				InetAddress group = InetAddress.getByName("239.255.255.250");
 				byte[] data = SSDP.getBytes("utf-8");
 				udpSocket.joinGroup(group);
 				DatagramPacket packet = new DatagramPacket(data, data.length, group, 1900);
 				for (int i = 0; i < 3; i++) {
-					System.out.println("sending broadcast from port " + udpSocket.getLocalPort()
-							+ " ...");
+					System.out.println("sending broadcast from "
+							+ udpSocket.getLocalSocketAddress() + " ...");
 					udpSocket.send(packet);
 					Thread.sleep(1000);
 				}
@@ -43,11 +44,10 @@ public class Communication {
 
 	private static void receiveBroadCast() {
 		try {
-//			InetAddress group = InetAddress.getByName("239.255.255.250");
-//			MulticastSocket udpSocket = new MulticastSocket(1900);
-//			udpSocket.joinGroup(group);
-			DatagramSocket udpSocket = new DatagramSocket(null);
-			udpSocket.bind(new InetSocketAddress("192.168.0.3", 4711));
+			// InetAddress group = InetAddress.getByName("239.255.255.250");
+			// MulticastSocket udpSocket = new MulticastSocket(1900);
+			// udpSocket.joinGroup(group);
+			DatagramSocket udpSocket = new DatagramSocket(new InetSocketAddress(address, 4711));
 			new Thread(new SsdpBroadcast()).start();
 			while (true) {
 				DatagramPacket reply = new DatagramPacket(new byte[1024], 1024);
@@ -55,7 +55,7 @@ public class Communication {
 						+ " ...");
 				udpSocket.receive(reply);
 				String msg = new String(reply.getData());
-				System.out.println("Received message from: " + reply.getAddress() + ":"
+				System.out.println("received message from: " + reply.getAddress() + ":"
 						+ reply.getPort() + "\n" + msg);
 			}
 		}
